@@ -47,13 +47,13 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
         return res.status(400).send('No files were uploaded.' + JSON.stringify(req.body));
     }
     const folder = `uploads/${slugify(req.body.date.toString())}/${slugify(req.body.entity.toString())}/`;
-    fs.appendFile('uploads/files.json', JSON.stringify({ ...req.body, folder, timestamp: Date.now() }), function (err) {
+    fs.appendFile('uploads/files.json', JSON.stringify({ ...req.body, files: req.files, folder, timestamp: Date.now() }), function (err) {
         if (err) throw err;
         console.log('Saved!');
     });
 
 
-    res.send('Files uploaded successfully.' + JSON.stringify({ ...req.body, folder, timestamp: Date.now() }));
+    res.send('Files uploaded successfully at ' + folder);
 
 });
 
