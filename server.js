@@ -4,6 +4,8 @@ const app = express();
 const port = 3000;
 var slugify = require('slugify');
 const makeDir = require('make-dir');
+const fs = require('fs');
+
 
 function getMutlerConfig() {
     // path exists unless there was an error
@@ -42,15 +44,24 @@ const storage = multer.diskStorage({
 app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), (req, res) => {
     // Access uploaded files via req.files
     if (!req.files || req.files.length === 0) {
-        return res.status(400).send('No files were uploaded.');
+        return res.status(400).send('No files were uploaded.' + JSON.stringify(req.body));
     }
-
-    // You can process the uploaded files here
     const folder = `uploads/${slugify(req.body.date.toString())}/${slugify(req.body.entity.toString())}/`;
+    fs.appendFile('uploads/files.json', JSON.stringify({ ...req.body, folder, timestamp: Date.now() }), function (err) {
+        if (err) throw err;
+        console.log('Saved!');
+    });
 
-    res.send('Files uploaded successfully.' + folder);
+
+    res.send('Files uploaded successfully.' + JSON.stringify({ ...req.body, folder, timestamp: Date.now() }));
+
 });
+
+
+
+
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+
