@@ -5,6 +5,7 @@ const port = 3000;
 var slugify = require('slugify');
 const makeDir = require('make-dir');
 const fs = require('fs');
+const filepath = require('path');
 
 
 function getMutlerConfig() {
@@ -36,6 +37,13 @@ const storage = multer.diskStorage({
         // Define how the uploaded files should be named
         cb(null, Date.now() + '-' + file.originalname);
     },
+});
+
+
+app.use(express.static(filepath.join(__dirname, 'build')));
+
+app.get('/', function (req, res) {
+  res.sendFile(filepath.join(__dirname, 'build', 'index.html'));
 });
 
 // const upload = multer({ storage: storage });
