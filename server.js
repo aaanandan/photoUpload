@@ -84,7 +84,7 @@ async function updateDocument(updateData) {
         // Connect to MongoDB
         await client.connect();
 
-        const collection = client.db().collection('your-collection-name'); // Replace with your collection name
+        const collection = client.db().collection('photos'); // Replace with your collection name
 
         // Define the filter to find the document you want to update
         const filter = { email_id: updateData.email_id };
