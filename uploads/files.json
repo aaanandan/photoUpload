@@ -178,4 +178,106 @@
     ],
     "folder": "uploads/2023-07-24/Bidadi/",
     "timestamp": 1694527679205
+}{
+    "email_id": "",
+    "date": "2023-07-24",
+    "entity": "Bidadi",
+    "pd_brief": "",
+    "event_type": "nithyotsavam",
+    "event_name": "",
+    "volunteer_count": "0",
+    "lives_enriched": "0",
+    "description": "",
+    "files": [
+        {
+            "fieldname": "files",
+            "originalname": "51589906_10212671033640635_5501955150303985664_n.jpg",
+            "encoding": "7bit",
+            "mimetype": "image/jpeg",
+            "destination": "uploads/2023-07-24/Bidadi/",
+            "filename": "1694867832941-51589906_10212671033640635_5501955150303985664_n.jpg",
+            "path": "uploads\\2023-07-24\\Bidadi\\1694867832941-51589906_10212671033640635_5501955150303985664_n.jpg",
+            "size": 60012
+        }
+    ],
+    "folder": "uploads/2023-07-24/Bidadi/",
+    "timestamp": 1694867832944
+}{
+    "email_id": "anandan.bs@gmail.com",
+    "date": "2023-07-24",
+    "entity": "Oklahoma",
+    "pd_brief": "test",
+    "event_type": "nithyotsavam",
+    "event_name": "name",
+    "activity_type": [
+        "ritual",
+        "offering"
+    ],
+    "volunteer_count": "10",
+    "lives_enriched": "10",
+    "description": "desc",
+    "files": [
+        {
+            "fieldname": "files",
+            "originalname": "Screenshot 2023-08-22 183717 - Copy.png",
+            "encoding": "7bit",
+            "mimetype": "image/png",
+            "destination": "uploads/2023-07-24/Oklahoma/",
+            "filename": "1695143161969-Screenshot 2023-08-22 183717 - Copy.png",
+            "path": "uploads\\2023-07-24\\Oklahoma\\1695143161969-Screenshot 2023-08-22 183717 - Copy.png",
+            "size": 36267
+        }
+    ],
+    "folder": "uploads/2023-07-24/Oklahoma/",
+    "timestamp": 1695143161975
+}{
+    "email_id": "anandan.bs@gmail.com",
+    "date": "2023-07-24",
+    "entity": "Ohio",
+    "pd_brief": "test",
+    "event_type": "utsavam",
+    "event_name": "name",
+    "activity_type": "ritual",
+    "volunteer_count": "0",
+    "lives_enriched": "0",
+    "description": "desc",
+    "files": [
+        {
+            "fieldname": "files",
+            "originalname": "Screenshot 2023-08-20 154935.png",
+            "encoding": "7bit",
+            "mimetype": "image/png",
+            "destination": "uploads/2023-07-24/Ohio/",
+            "filename": "1695143239094-Screenshot 2023-08-20 154935.png",
+            "path": "uploads\\2023-07-24\\Ohio\\1695143239094-Screenshot 2023-08-20 154935.png",
+            "size": 1236172
+        }
+    ],
+    "folder": "uploads/2023-07-24/Ohio/",
+    "timestamp": 1695143239118
+}{
+    "email_id": "anandan.bs@gmail.com",
+    "date": "2023-07-24",
+    "entity": "Houston",
+    "pd_brief": "dest",
+    "event_type": "inauguration",
+    "event_name": "name",
+    "activity_type": "horticulture",
+    "volunteer_count": "0",
+    "lives_enriched": "0",
+    "description": "desc",
+    "files": [
+        {
+            "fieldname": "files",
+            "originalname": "Screenshot 2023-09-13 043643.png",
+            "encoding": "7bit",
+            "mimetype": "image/png",
+            "destination": "uploads/2023-07-24/Houston/",
+            "filename": "1695143284943-Screenshot 2023-09-13 043643.png",
+            "path": "uploads\\2023-07-24\\Houston\\1695143284943-Screenshot 2023-09-13 043643.png",
+            "size": 23795
+        }
+    ],
+    "folder": "uploads/2023-07-24/Houston/",
+    "timestamp": 1695143284946
 }
