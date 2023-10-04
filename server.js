@@ -12,7 +12,7 @@ function getMutlerConfig() {
     // path exists unless there was an error
     return multer.diskStorage({
         destination: (req, file, cb) => {
-            const folder = `uploads/${slugify(req.body.date)}/${slugify(req.body.entity.toString())}/`;
+            const folder = `uploads/${req.body.date.toString()}/${slugify(req.body.entity.toString())}/`;
             console.log('folder:::', folder);
             (async () => {
                 const path = await makeDir(folder);
