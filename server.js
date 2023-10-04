@@ -12,7 +12,7 @@ function getMutlerConfig() {
     // path exists unless there was an error
     return multer.diskStorage({
         destination: (req, file, cb) => {
-            const folder = `uploads/${slugify(req.body.date.toString())}/${slugify(req.body.entity.toString())}/`;
+            const folder = `uploads/${slugify(new Date(req.body.date.toString()))}/${slugify(req.body.entity.toString())}/`;
             console.log('folder:::', folder);
             (async () => {
                 const path = await makeDir(folder);
@@ -61,7 +61,19 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
         console.log('Saved!');
     });
 
-    updateDocument(photoInfo);
+    let MongoClient = require('mongodb').MongoClient;
+    let url = "mongodb://localhost:27017/";
+
+    MongoClient.connect(url, function (err, db) {
+        if (err) throw err;
+        let dbo = db.db("photos");
+        dbo.collection("photos").insertOne(photoInfo, function (err, res) {
+            if (err) throw err;
+            console.log("1 document inserted");
+            db.close();
+        });
+    });
+
     res.send('Files uploaded successfully at ' + folder);
 });
 
@@ -69,40 +81,3 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
-
-const { MongoClient, ObjectID } = require('mongodb');
-
-// Connection URI for your MongoDB server
-const uri = 'mongodb://localhost:27017/photos'; // Replace with your database URI
-
-
-// Function to update the document
-async function updateDocument(updateData) {
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-    try {
-        // Connect to MongoDB
-        await client.connect();
-
-        const collection = client.db().collection('photos'); // Replace with your collection name
-
-        // Define the filter to find the document you want to update
-        const filter = { email_id: updateData.email_id };
-
-        // Define the update operation
-        const updateOperation = {
-            $set: updateData // Use $set to update the specified fields
-        };
-
-        // Perform the update
-        const result = await collection.updateOne(filter, updateOperation);
-
-        console.log(`Document updated: ${result.modifiedCount} document(s) modified`);
-    } finally {
-        // Close the MongoDB connection
-        await client.close();
-    }
-}
-
-// Call the updateDocument function to update the document
-updateDocument().catch(console.error);
