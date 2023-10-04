@@ -56,7 +56,7 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
     }
     const folder = `uploads/${slugify(req.body.date.toString())}/${slugify(req.body.entity.toString())}/`;
     const photoInfo = { ...req.body, files: req.files, folder, timestamp: Date.now() };
-    fs.appendFile('uploads/files.json', JSON.stringify(data), function (err) {
+    fs.appendFile('uploads/files.json', JSON.stringify(photoInfo), function (err) {
         if (err) throw err;
         console.log('Saved!');
     });
