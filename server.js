@@ -77,6 +77,8 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
         const result = await client.db("photos").collection("photos").insertOne(photoInfo);
         console.log(`New record added: ${result.insertedId}`);
     }
+    return res.status(200).send('files uploaded...sucessfully to ' + folder);
+
 });
 
 
