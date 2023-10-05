@@ -61,25 +61,22 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
         console.log('Saved!');
     });
 
-    let MongoClient = require('mongodb').MongoClient;
-    let url = "mongodb://127.0.0.1:27017/";
-    console.log('1');
-    MongoClient.connect(url, function (err, db) {
-        if (err) throw err;
-        console.log('2');
-        let dbo = db.db("photos");
-        dbo.collection("photos").insertOne(photoInfo, function (err, res) {
-            console.log('3');
-            if (err) throw err;
-            console.log("1 document inserted");
-            console.log('3');
-
-            db.close();
-            res.send('Files uploaded successfully at ' + folder);
-
-        });
-    });
-
+    const { MongoClient } = require('mongodb');
+    async function updateToDB() {
+        const uri = "mongodb://127.0.0.1:27017/";
+        const client = new MongoClient(uri);
+        try {
+            await client.connect();
+            await addRecord(client, photoInfo);
+        } finally {
+            await client.close();
+        }
+    }
+    updateToDB().catch(console.error);
+    async function addRecord(client, photoInfo) {
+        const result = await client.db("photos").collection("photos").insertOne(photoInfo);
+        console.log(`New record added: ${result.insertedId}`);
+    }
 });
 
 
