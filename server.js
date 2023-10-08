@@ -11,7 +11,7 @@ function getMutlerConfig() {
     // path exists unless there was an error
     return multer.diskStorage({
         destination: (req, file, cb) => {
-            const folder = `uploads/${slugify(req.body.date.toString())}/${slugify(req.body.entity.toString())}/`;
+            const folder = getFolderName(req);
             console.log('folder:::', folder);
             (async () => {
                 const path = await makeDir(folder);
@@ -51,9 +51,9 @@ app.get('/', function (req, res) {
 app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), (req, res) => {
     // Access uploaded files via req.files
     if (!req.files || req.files.length === 0) {
-        return res.status(400).send('No files were uploaded.' + JSON.stringify(req.body));
+        return res.status(400).send({ message: 'No files found', ...req.body });
     }
-    const folder = `uploads/${slugify(req.body.date.toString())}/${slugify(req.body.entity.toString())}/`;
+    const folder = getFolderName(req);
     const photoInfo = { ...req.body, files: req.files, folder, timestamp: Date.now() };
     fs.appendFile('uploads/files.json', JSON.stringify(photoInfo), function (err) {
         if (err) throw err;
@@ -76,7 +76,7 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
         const result = await client.db("photos").collection("photos").insertOne(photoInfo);
         console.log(`New record added: ${result.insertedId}`);
     }
-    return res.status(200).send('files uploaded...sucessfully to ' + folder);
+    return res.status(200).send({ 'message': 'files uploaded sucessfully to :' + folder });
 
 });
 
@@ -84,3 +84,7 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
+function getFolderName(req) {
+    return `uploads/${slugify(req.body.startDate.toString().substring(0, 25).replaceAll(":", '.'))}/${slugify(req.body.place.toString())}/`;
+}
+
