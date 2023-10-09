@@ -6,6 +6,8 @@ var slugify = require('slugify');
 const makeDir = require('make-dir');
 const fs = require('fs');
 const filepath = require('path');
+// var cors = require('cors');
+// app.use(cors());
 
 function getMutlerConfig() {
     // path exists unless there was an error
@@ -82,9 +84,12 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
 
 
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`server  is running on port ${port}`);
+
+
 });
 function getFolderName(req) {
+    // console.log('req',req, JSON.stringify(req.body));
     return `uploads/${slugify(req.body.startDate.toString().substring(0, 25).replaceAll(":", '.'))}/${slugify(req.body.place.toString())}/`;
 }
 
