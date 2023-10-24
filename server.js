@@ -90,6 +90,6 @@ app.listen(port, () => {
 });
 function getFolderName(req) {
     // console.log('req',req, JSON.stringify(req.body));
-    return `uploads/${slugify(req.body.startDate.toString().substring(0, 25).replaceAll(":", '.'))}/${slugify(req.body.place.toString())}/`;
+    return `uploads/${slugify(req.body.startDate.toString().substring(0, 25).replaceAll(":", '.'))+'-'+slugify(req.body.place.toString())}/${slugify(req.body.place.toString())}/`;
 }
 
