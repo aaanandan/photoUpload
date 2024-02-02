@@ -9,6 +9,9 @@ const filepath = require('path');
 // var cors = require('cors');
 // app.use(cors());
 
+app.use(express.static('uploads'))
+
+
 function getMutlerConfig() {
     // path exists unless there was an error
     return multer.diskStorage({
