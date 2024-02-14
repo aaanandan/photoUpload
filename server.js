@@ -8,7 +8,7 @@ const fs = require('fs');
 const filepath = require('path');
 // var cors = require('cors');
 // app.use(cors());
-const GoogleSpreadsheet = require('google-spreadsheet');
+const {GoogleSpreadsheet} = require('google-spreadsheet');
 const {JWT} = require('google-auth-library');
 
 app.use(express.static('uploads'))
