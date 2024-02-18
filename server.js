@@ -91,8 +91,6 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
 
 app.listen(port, () => {
     console.log(`server  is running on port ${port}`);
-    updateSheet({});
-
 });
 function getFolderName(req) {
     // console.log('req',req, JSON.stringify(req.body));
@@ -111,8 +109,7 @@ async function updateSheet(photoInfo) {
         ],
     });
 
-    //1g3ZNKipv30N3F3cP5SQPZEHUxmG4Si8qfFaBP_dpqdY
-    const doc = new GoogleSpreadsheet('1cilydI8x0eFolqUth_C9jJBfKjnWDOkrfU05E5w_5xQ', serviceAccountAuth);
+    const doc = new GoogleSpreadsheet('1g3ZNKipv30N3F3cP5SQPZEHUxmG4Si8qfFaBP_dpqdY', serviceAccountAuth);
     await doc.loadInfo(); // loads document properties and worksheets
     console.log(doc.title);
     const sheet = doc.sheetsByIndex[0]; // or use `doc.sheetsById[id]` or `doc.sheetsByTitle[title]`
@@ -174,11 +171,11 @@ function getPhotoPaths(files) {
             const file = files[i];
             path = file.destination.replaceAll("uploads/", "https://npediaimg.koogle.sk/") + file.filename;
 
-            if (i < 10 && i >= 0) paths.push(file);
-            if (i < 20 && i >= 10) paths1.push(file);
-            if (i < 30 && i >= 20) paths2.push(file);
-            if (i < 40 && i >= 30) paths3.push(file);
-            if (i >= 40) pathsMore.push(file);
+            if (i < 10 && i >= 0) paths.push(path);
+            if (i < 20 && i >= 10) paths1.push(path);
+            if (i < 30 && i >= 20) paths2.push(path);
+            if (i < 40 && i >= 30) paths3.push(path);
+            if (i >= 40) pathsMore.push(path);
         }
     }
     return { paths, paths1, paths2, paths3, pathsMore };
