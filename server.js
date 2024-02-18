@@ -91,7 +91,7 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
 
 app.listen(port, () => {
     console.log(`server  is running on port ${port}`);
-
+    updateSheet({});
 
 });
 function getFolderName(req) {
@@ -111,45 +111,51 @@ async function updateSheet(photoInfo) {
         ],
     });
 
-    const doc = new GoogleSpreadsheet('1g3ZNKipv30N3F3cP5SQPZEHUxmG4Si8qfFaBP_dpqdY', serviceAccountAuth);
+    //1g3ZNKipv30N3F3cP5SQPZEHUxmG4Si8qfFaBP_dpqdY
+    const doc = new GoogleSpreadsheet('1cilydI8x0eFolqUth_C9jJBfKjnWDOkrfU05E5w_5xQ', serviceAccountAuth);
     await doc.loadInfo(); // loads document properties and worksheets
     console.log(doc.title);
     const sheet = doc.sheetsByIndex[0]; // or use `doc.sheetsById[id]` or `doc.sheetsByTitle[title]`
 
     const pathGrp = getPhotoPaths(photoInfo.files);
+    
+    // let row = {
+    //     "Timestamp": photoInfo.timestamp,
+    //     "Email": photoInfo.email,
+    //     "FilledBy": "",
+    //     "EntityType": photoInfo.eventType,
+    //     "KailasaOrCategory": photoInfo.entity,
+    //     "Country": "",
+    //     "State": "",
+    //     "City": photoInfo.place,
+    //     "Zipcode": "",
+    //     "EventName": photoInfo.eventName,
+    //     "Subtitle": photoInfo.activityType,
+    //     "EventDate": photoInfo.startDate,
+    //     "EventDescription": photoInfo.description + ", " + photoInfo.presidentialBriefing,
+    //     "Categories": photoInfo.activityType,
+    //     "OtherMoreDetails": "",
+    //     "UploadPictures": pathGrp.paths,
+    //     "NumberOfPeopleAttended": photoInfo.livesEnriched,
+    //     "OnlineInPersonEvent": "",
+    //     "WasFoodServed": "",
+    //     "HowManyPlatesOfFoodWereServed": "",
+    //     "HowManyVolunteers": photoInfo.volunteerCount,
+    //     "DurationOfTheEvent": "",
+    //     "BudgetSpent": "",
+    //     "Aacharya": "",
+    //     "ChallengesFaced": "",
+    //     "UploadMorePictures1": pathGrp.paths1,
+    //     "UploadMorePictures2": pathGrp.paths2,
+    //     "UploadMorePictures3": pathGrp.paths3,
+    //     "UploadMorePictures4": pathGrp.pathsMore,
+    //     "UploadPDB": "",
+    //     "NumberOfNaivedhyamOffered": ""
+    // }
 
     let row = {
-        "Timestamp": photoInfo.timestamp,
-        "Email": photoInfo.email,
-        "FilledBy": "",
-        "EntityType": photoInfo.eventType,
-        "KailasaOrCategory": photoInfo.entity,
-        "Country": "",
-        "State": "",
-        "City": photoInfo.place,
-        "Zipcode": "",
-        "EventName": photoInfo.eventName,
-        "Subtitle": photoInfo.activityType,
-        "EventDate": photoInfo.startDate,
-        "EventDescription": photoInfo.description + ", " + photoInfo.presidentialBriefing,
-        "Categories": photoInfo.activityType,
-        "OtherMoreDetails": "",
-        "UploadPictures": pathGrp.paths,
-        "NumberOfPeopleAttended": photoInfo.livesEnriched,
-        "OnlineInPersonEvent": "",
-        "WasFoodServed": "",
-        "HowManyPlatesOfFoodWereServed": "",
-        "HowManyVolunteers": photoInfo.volunteerCount,
-        "DurationOfTheEvent": "",
-        "BudgetSpent": "",
-        "Aacharya": "",
-        "ChallengesFaced": "",
-        "UploadMorePictures1": pathGrp.paths1,
-        "UploadMorePictures2": pathGrp.paths2,
-        "UploadMorePictures3": pathGrp.paths3,
-        "UploadMorePictures4": pathGrp.pathsMore,
-        "UploadPDB": "",
-        "NumberOfNaivedhyamOffered": ""
+        name:'anandan',
+        email:'anandan.bs@gmail.com'
     }
     const newRow = await sheet.addRow(row);
     console.log(newRow);
