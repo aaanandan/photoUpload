@@ -150,10 +150,7 @@ async function updateSheet(photoInfo) {
         "NumberOfNaivedhyamOffered": ""
     }
 
-    let row = {
-        name:'anandan',
-        email:'anandan.bs@gmail.com'
-    }
+
     const newRow = await sheet.addRow(row);
     console.log(newRow);
 }
