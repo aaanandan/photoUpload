@@ -152,7 +152,7 @@ async function updateSheet(photoInfo) {
 
 
     const newRow = await sheet.addRow(row);
-    console.log(newRow);
+    console.log('added a row to XL sheet');
 }
 
 
