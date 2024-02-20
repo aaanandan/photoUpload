@@ -109,7 +109,7 @@ async function updateSheet(photoInfo) {
         ],
     });
 
-    const doc = new GoogleSpreadsheet('1g3ZNKipv30N3F3cP5SQPZEHUxmG4Si8qfFaBP_dpqdY', serviceAccountAuth);
+    const doc = new GoogleSpreadsheet('1m7XDg1drzLt098iOp0IAe6jZw3BkErNFbmk6ozqnl9o', serviceAccountAuth);
     await doc.loadInfo(); // loads document properties and worksheets
     console.log(doc.title);
     const sheet = doc.sheetsByIndex[0]; // or use `doc.sheetsById[id]` or `doc.sheetsByTitle[title]`
