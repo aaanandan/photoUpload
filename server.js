@@ -81,7 +81,8 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
     updateToDB().catch(console.error);
     async function addRecord(client, photoInfo) {
         const result = await client.db("photos").collection("photos").insertOne(photoInfo);
-        await updateSheet(photoInfo);
+        // await updateSheet(photoInfo);
+        await createWikiEventPage(photoInfo);
         console.log(`New record added: ${result.insertedId}`);
     }
     return res.status(200).send({ 'message': 'files uploaded sucessfully to :' + folder });
@@ -176,4 +177,124 @@ function getPhotoPaths(files) {
         }
     }
     return { paths, paths1, paths2, paths3, pathsMore };
+}
+
+function createWikiEventPage(photoInfo){
+var request = require('request').defaults({ jar: true }),
+    url = "https://nithyanandapedia.org/api.php";
+
+// Step 1: GET request to fetch login token
+function getLoginToken() {
+    var params_0 = {
+        action: "query",
+        meta: "tokens",
+        type: "login",
+        format: "json"
+    };
+
+    request.get({ url: url, qs: params_0 }, function (error, res, body) {
+        if (error) {
+            return;
+        }
+        var data = JSON.parse(body);
+        loginRequest(data.query.tokens.logintoken);
+    });
+}
+
+// Step 2: POST request to log in. 
+// Use of main account for login is not
+// supported. Obtain credentials via Special:BotPasswords
+// (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
+function loginRequest(login_token) {
+    var params_1 = {
+        action: "login",
+        lgname: "Sri.shivajnana@MirroringBot",
+        lgpassword: "9l4puuip0hcb59q4u2a4dk7qcfnfcrih",
+        lgtoken: login_token,
+        format: "json"
+    };
+
+    request.post({ url: url, form: params_1 }, function (error, res, body) {
+        if (error) {
+            return;
+        }
+        getCsrfToken();
+    });
+}
+
+// Step 3: GET request to fetch CSRF token
+function getCsrfToken() {
+    var params_2 = {
+        action: "query",
+        meta: "tokens",
+        format: "json"
+    };
+
+    request.get({ url: url, qs: params_2 }, function (error, res, body) {
+        if (error) {
+            return;
+        }
+        var data = JSON.parse(body);
+        editRequest(data.query.tokens.csrftoken);
+    });
+}
+
+const pathGrp = getPhotoPaths(photoInfo.files);
+
+let content = `__NOTOC__
+
+='''${photoInfo.entity} on  ${photoInfo.startDate}'''=
+
+==''${photoInfo.activityType}''==
+{{
+EventDetails|
+participantsCount=${photoInfo.livesEnriched}|
+eventType=${photoInfo.eventType}|
+foodServedInEvent=|
+mealsCount=|
+volunteersCount=${photoInfo.volunteerCount}|
+eventDuration=
+}}
+
+${photoInfo.presidentialBriefing}
+${photoInfo.activityType.map(e=>{'#'+e.toString()})} ${photoInfo.eventType.map(e=>{'#'+e.toString()}) }
+
+=='''Presidential Daily Briefing'''==
+${pathGrp.paths.toString()}</div>
+</div>
+
+=='''Pictures from the day'''==
+
+<div id="event_pictures">
+<gallery mode=packed-hover heights=200px>
+${pathGrp.paths1.toString()}
+${pathGrp.paths2.toString()}
+${pathGrp.paths3.toString()}
+${pathGrp.pathsMore.toString()}
+</gallery>
+</div>
+
+${photoInfo.activityType.map(e=>{ '[[Category:'+e+']]'})}
+`;
+
+// Step 4: POST request to edit a page
+function editRequest(csrf_token) {
+    var params_3 = {
+        action: "edit",
+        title: "Project:Sandbox",
+        appendtext: content,
+        token: csrf_token,
+        format: "json"
+    };
+
+    request.post({ url: url, form: params_3 }, function (error, res, body) {
+        if (error) {
+            return;
+        }
+        console.log(body);
+    });
+}
+
+// Start From Step 1
+getLoginToken();
 }
