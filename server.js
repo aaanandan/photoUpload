@@ -119,7 +119,7 @@ async function updateSheet(photoInfo) {
     const pathGrp = getPhotoPaths(photoInfo.files);
     
     let row = {
-        "Timestamp": photoInfo.timestamp,
+        "Timestamp": new Date(photoInfo.timestamp).toLocaleString(),
         "Email": photoInfo.email,
         "FilledBy": "",
         "EntityType": photoInfo.eventType,
