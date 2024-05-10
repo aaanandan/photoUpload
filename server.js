@@ -130,7 +130,7 @@ async function updateSheet(photoInfo) {
         "Zipcode": "",
         "EventName": photoInfo.eventName,
         "Subtitle": photoInfo.activityType,
-        "EventDate": photoInfo.startDate,
+        "EventDate": new Date(photoInfo.startDate).toLocaleDateString("en-IN"),
         "EventDescription": photoInfo.description + ", " + photoInfo.presidentialBriefing,
         "Categories": photoInfo.activityType,
         "OtherMoreDetails": "",
