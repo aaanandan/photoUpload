@@ -83,7 +83,7 @@ app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), 
         const result = await client.db("photos").collection("photos").insertOne(photoInfo);
         await updateSheet(photoInfo);
         //TODO: Fix activityType files to support map function to enable wikik event page creation 
-        //await createWikiEventPage(photoInfo);
+        await createWikiEventPage(photoInfo);
         console.log(`New record added: ${result.insertedId}`);
     }
     return res.status(200).send({ 'message': 'files uploaded sucessfully to :' + folder });
