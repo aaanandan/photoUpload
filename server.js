@@ -1,248 +1,274 @@
-const express = require('express');
-const multer = require('multer');
+const express = require("express");
+const multer = require("multer");
 const app = express();
 const port = 3000;
-var slugify = require('slugify');
-const makeDir = require('make-dir');
-const fs = require('fs');
-const filepath = require('path');
+var slugify = require("slugify");
+const makeDir = require("make-dir");
+const fs = require("fs");
+const filepath = require("path");
 // var cors = require('cors');
 // app.use(cors());
-const {GoogleSpreadsheet} = require('google-spreadsheet');
-const {JWT} = require('google-auth-library');
+const { GoogleSpreadsheet } = require("google-spreadsheet");
+const { JWT } = require("google-auth-library");
 
-app.use(express.static('uploads'))
-
+app.use(express.static("uploads"));
 
 function getMutlerConfig() {
-    // path exists unless there was an error
-    return multer.diskStorage({
-        destination: (req, file, cb) => {
-            const folder = getFolderName(req);
-            console.log('folder:::', folder);
-            (async () => {
-                const path = await makeDir(folder);
-                console.log(path);
-                cb(null, folder);
-                //=> '/Users/sindresorhus/fun/unicorn/rainbow/cake'
-            })();
-        }, filename: (req, file, cb) => {
-            // Define how the uploaded files should be named
-            cb(null, Date.now() + '-' + file.originalname);
-        },
-    });
+  // path exists unless there was an error
+  return multer.diskStorage({
+    destination: (req, file, cb) => {
+      const folder = getFolderName(req);
+      console.log("photo uploded to folder:::", folder);
+      (async () => {
+        const path = await makeDir(folder);
+        console.log(path);
+        cb(null, folder);
+        //=> '/Users/sindresorhus/fun/unicorn/rainbow/cake'
+      })();
+    },
+    filename: (req, file, cb) => {
+      // Define how the uploaded files should be named
+      cb(null, Date.now() + "-" + file.originalname);
+    },
+  });
 }
 
 // Multer configuration
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        // Define the directory where uploaded files will be stored
-        cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-        // Define how the uploaded files should be named
-        cb(null, Date.now() + '-' + file.originalname);
-    },
+  destination: (req, file, cb) => {
+    // Define the directory where uploaded files will be stored
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    // Define how the uploaded files should be named
+    cb(null, Date.now() + "-" + file.originalname);
+  },
 });
 
+app.use(express.static(filepath.join(__dirname, "build")));
 
-app.use(express.static(filepath.join(__dirname, 'build')));
-
-app.get('/', function (req, res) {
-    res.sendFile(filepath.join(__dirname, 'build', 'index.html'));
+app.get("/", function (req, res) {
+  res.sendFile(filepath.join(__dirname, "build", "index.html"));
 });
 
 // const upload = multer({ storage: storage });
 // Middleware to handle file uploads
 
-app.post('/upload', multer({ storage: getMutlerConfig() }).array('files', 200), (req, res) => {
+app.post(
+  "/upload",
+  multer({ storage: getMutlerConfig() }).array("files", 200),
+  (req, res) => {
     // Access uploaded files via req.files
     if (!req.files || req.files.length === 0) {
-        return res.status(400).send({ message: 'No files found', ...req.body });
+      return res.status(400).send({ message: "No files found", ...req.body });
     }
     const folder = getFolderName(req);
-    const photoInfo = { ...req.body, files: req.files, folder, timestamp: Date.now() };
-    fs.appendFile('uploads/files.json', JSON.stringify(photoInfo), function (err) {
+    const photoInfo = {
+      ...req.body,
+      files: req.files,
+      folder,
+      timestamp: Date.now(),
+    };
+    fs.appendFile(
+      "uploads/files.json",
+      JSON.stringify(photoInfo),
+      function (err) {
         if (err) throw err;
-        console.log('Saved!');
-    });
+        console.log("Saved!");
+      }
+    );
 
-    const { MongoClient } = require('mongodb');
+    const { MongoClient } = require("mongodb");
     async function updateToDB() {
-        const uri = "mongodb://127.0.0.1:27017/";
-        const client = new MongoClient(uri);
-        try {
-            await client.connect();
-            await addRecord(client, photoInfo);
-        } finally {
-            await client.close();
-        }
+      const uri = "mongodb://127.0.0.1:27017/";
+      const client = new MongoClient(uri);
+      try {
+        await client.connect();
+        await addRecord(client, photoInfo);
+      } finally {
+        await client.close();
+      }
     }
     updateToDB().catch(console.error);
     async function addRecord(client, photoInfo) {
-        const result = await client.db("photos").collection("photos").insertOne(photoInfo);
-        await updateSheet(photoInfo);
-        //TODO: Fix activityType files to support map function to enable wikik event page creation 
-        await createWikiEventPage(photoInfo);
-        console.log(`New record added: ${result.insertedId}`);
+      const result = await client
+        .db("photos")
+        .collection("photos")
+        .insertOne(photoInfo);
+      await updateSheet(photoInfo);
+      await createWikiEventPage(photoInfo);
+      console.log(`New record added: ${result.insertedId}`);
     }
-    return res.status(200).send({ 'message': 'files uploaded sucessfully to :' + folder });
-
-});
-
+    return res
+      .status(200)
+      .send({ message: "files uploaded sucessfully to :" + folder });
+  }
+);
 
 app.listen(port, () => {
-    console.log(`server  is running on port ${port}`);
+  console.log(`server  is running on port ${port}`);
 });
 function getFolderName(req) {
-    // console.log('req',req, JSON.stringify(req.body));
-    return `uploads/${slugify(req.body.startDate.toString().substring(0, 25).replaceAll(":", '.')) + '-' + slugify(req.body.place.toString())}/${slugify(req.body.place.toString())}/`;
+  // console.log('req',req, JSON.stringify(req.body));
+  return `uploads/${
+    slugify(
+      req.body.startDate.toString().substring(0, 25).replaceAll(":", ".")
+    ) +
+    "-" +
+    slugify(req.body.place.toString())
+  }/${slugify(req.body.place.toString())}/`;
 }
 
 async function updateSheet(photoInfo) {
-    // Initialize auth - see https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication
-    const serviceAccountAuth = new JWT({
-        // env var values here are copied from service account credentials generated by google
-        // see "Authentication" section in docs for more info
-        email: 'googlesheet@crafty-shield-304018.iam.gserviceaccount.com',
-        key: '-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8WnWdwJQPe1/r\nE91ZPepzWQdAZdXbhD7WnC5x2JQHKRbIG9OXEKOpPYNXYtLb0/RrHe/cJD1b0xwn\n6XBCjCKkx+Swc2F5c0d9B/zC9n/Mu/fyQ58mCHBer67SPKVsfwLbyvbG/Ngnpdh0\nc7B0q6lfrlPpUdZh9DoRgITzq5Gz8UsUDn5ry76/DevoNl23WZ1QK2S/fJkL9X//\nAWJgXZDOM+VrbSAHCIAnvwhPO86tIg7P1ITFnDu5CxJ7MgMNSuBGLXIzk08WQGJo\nOOKJ6uw1ENSKzElMCqCUixttIMNq/YAkXSAsNc4724PbnYc/Eda+quEv3AlnTJby\n71ovdoDDAgMBAAECggEADrBjUc0t/tMZVOT0szv/58T+qsgGWJtEp0oA2UIRsUlE\nDJEW/EYA7XbtokgDt78c5amtBhcRbfLV1EsBRT9WiFFKhXRKGsWhwp931+CPcPEL\n0inx5G5uDQRYdu7h28c/+tImUrhvRxBJBDPtg/vLNroKszx9oqAAU1MZi0NLFqRN\nWTqHULjH0Z3apNLnnfFBqhQP6alrM1tVJd93cbzz8w749ChO8einOP064p1KffQj\n7tzzDh3KDRCCMgvRxxZL8aDhLB9oLn2dANC65F4aWviszCc2QRnx0G6O44cHVwp0\nyjo2uKS6nqBUStDHWD/rje3JXFfQCRe/AO5dsRIzmQKBgQDwg8saADvq2bYGtgni\n/RNG4eDqFvdXOInWBjos18FgWd2gWZCmDmuJZVxQw6PH+2IOmnApZyEZEXlb132W\nz5qviOmdtYuRcg1WtNVeFgFA+ulDhM1lqSA7upBFjmPc8hbfEnHSKmKjoFIDP2Bt\n3ZxIVCcUITgt5kKfzYwKJHU9TwKBgQDIeu6Q4sQ+Ka4In9bOiFfjXJ+hFvK01tmU\n+X+q4TIrJQBeQe7A4otgXOJyocYm44F/IanIdSDrHT+BhLMUSoHOq7Fh8NplV1/m\nXRmzx/X0TUljM5NHmLALrQg+Mv14bOPVLWrU2e6mzuFCvouhEVrrVkMfcg5gMSjQ\nmCvVgXfwTQKBgBCpUJyQf5YZVt7IJY8v8PHsG+Sbiq7kH8hPzh/lImRGVXASRE78\nmL5/4xFFPEdSRsy0LijwF/7gkwOlvfGAmDqoxWZDeVOuDvZ+uHk4FQYnW5ltzbzJ\nJo58shnfb1OTAbqaUIA6p3KmXIgVD90MiRMJoVtnobisRtlDJ/xb4jNJAoGAav4w\nk+JyGTrlRnUHjvH09cJY7v/wR9LiDD+bgvbsb1ov+B337bj56VOpBsSPm/GPCupM\nUk8wYkoZumW3rPyWilXXNQ31gGBBLhBBx1DQUrFsmSTNVUiHq7OM0qUj4UE71mmG\nulIUq7F9RsGqgytf+njvGbklMvEJd0m/GxMdj4ECgYEAu4rAcji8eK5LQmjjuxRA\ns7TO/XmU+xVGDuwCasFxQ9OX4nGG93PW4UhRYz05hGXiPfZAKFFHeeTSW5sRXcOz\n8o3kFYk1sGeW/Pc7olhSbUg16NH7gEdEyYRWfpFftZbiKS7MwSnr7LMV8WrUXwQH\noYRD0cSOI0rHtYFeUCs/peM=\n-----END PRIVATE KEY-----\n',
-        scopes: [
-            'https://www.googleapis.com/auth/spreadsheets',
-        ],
-    });
+  // Initialize auth - see https://theoephraim.github.io/node-google-spreadsheet/#/guides/authentication
+  const serviceAccountAuth = new JWT({
+    // env var values here are copied from service account credentials generated by google
+    // see "Authentication" section in docs for more info
+    email: "googlesheet@crafty-shield-304018.iam.gserviceaccount.com",
+    key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8WnWdwJQPe1/r\nE91ZPepzWQdAZdXbhD7WnC5x2JQHKRbIG9OXEKOpPYNXYtLb0/RrHe/cJD1b0xwn\n6XBCjCKkx+Swc2F5c0d9B/zC9n/Mu/fyQ58mCHBer67SPKVsfwLbyvbG/Ngnpdh0\nc7B0q6lfrlPpUdZh9DoRgITzq5Gz8UsUDn5ry76/DevoNl23WZ1QK2S/fJkL9X//\nAWJgXZDOM+VrbSAHCIAnvwhPO86tIg7P1ITFnDu5CxJ7MgMNSuBGLXIzk08WQGJo\nOOKJ6uw1ENSKzElMCqCUixttIMNq/YAkXSAsNc4724PbnYc/Eda+quEv3AlnTJby\n71ovdoDDAgMBAAECggEADrBjUc0t/tMZVOT0szv/58T+qsgGWJtEp0oA2UIRsUlE\nDJEW/EYA7XbtokgDt78c5amtBhcRbfLV1EsBRT9WiFFKhXRKGsWhwp931+CPcPEL\n0inx5G5uDQRYdu7h28c/+tImUrhvRxBJBDPtg/vLNroKszx9oqAAU1MZi0NLFqRN\nWTqHULjH0Z3apNLnnfFBqhQP6alrM1tVJd93cbzz8w749ChO8einOP064p1KffQj\n7tzzDh3KDRCCMgvRxxZL8aDhLB9oLn2dANC65F4aWviszCc2QRnx0G6O44cHVwp0\nyjo2uKS6nqBUStDHWD/rje3JXFfQCRe/AO5dsRIzmQKBgQDwg8saADvq2bYGtgni\n/RNG4eDqFvdXOInWBjos18FgWd2gWZCmDmuJZVxQw6PH+2IOmnApZyEZEXlb132W\nz5qviOmdtYuRcg1WtNVeFgFA+ulDhM1lqSA7upBFjmPc8hbfEnHSKmKjoFIDP2Bt\n3ZxIVCcUITgt5kKfzYwKJHU9TwKBgQDIeu6Q4sQ+Ka4In9bOiFfjXJ+hFvK01tmU\n+X+q4TIrJQBeQe7A4otgXOJyocYm44F/IanIdSDrHT+BhLMUSoHOq7Fh8NplV1/m\nXRmzx/X0TUljM5NHmLALrQg+Mv14bOPVLWrU2e6mzuFCvouhEVrrVkMfcg5gMSjQ\nmCvVgXfwTQKBgBCpUJyQf5YZVt7IJY8v8PHsG+Sbiq7kH8hPzh/lImRGVXASRE78\nmL5/4xFFPEdSRsy0LijwF/7gkwOlvfGAmDqoxWZDeVOuDvZ+uHk4FQYnW5ltzbzJ\nJo58shnfb1OTAbqaUIA6p3KmXIgVD90MiRMJoVtnobisRtlDJ/xb4jNJAoGAav4w\nk+JyGTrlRnUHjvH09cJY7v/wR9LiDD+bgvbsb1ov+B337bj56VOpBsSPm/GPCupM\nUk8wYkoZumW3rPyWilXXNQ31gGBBLhBBx1DQUrFsmSTNVUiHq7OM0qUj4UE71mmG\nulIUq7F9RsGqgytf+njvGbklMvEJd0m/GxMdj4ECgYEAu4rAcji8eK5LQmjjuxRA\ns7TO/XmU+xVGDuwCasFxQ9OX4nGG93PW4UhRYz05hGXiPfZAKFFHeeTSW5sRXcOz\n8o3kFYk1sGeW/Pc7olhSbUg16NH7gEdEyYRWfpFftZbiKS7MwSnr7LMV8WrUXwQH\noYRD0cSOI0rHtYFeUCs/peM=\n-----END PRIVATE KEY-----\n",
+    scopes: ["https://www.googleapis.com/auth/spreadsheets"],
+  });
 
-    const doc = new GoogleSpreadsheet('1m7XDg1drzLt098iOp0IAe6jZw3BkErNFbmk6ozqnl9o', serviceAccountAuth);
-    await doc.loadInfo(); // loads document properties and worksheets
-    console.log(doc.title);
-    const sheet = doc.sheetsByIndex[0]; // or use `doc.sheetsById[id]` or `doc.sheetsByTitle[title]`
+  const doc = new GoogleSpreadsheet(
+    "1m7XDg1drzLt098iOp0IAe6jZw3BkErNFbmk6ozqnl9o",
+    serviceAccountAuth
+  );
+  await doc.loadInfo(); // loads document properties and worksheets
+  console.log(doc.title);
+  const sheet = doc.sheetsByIndex[0]; // or use `doc.sheetsById[id]` or `doc.sheetsByTitle[title]`
 
-    const pathGrp = getPhotoPaths(photoInfo.files);
-    
-    let row = {
-        "Timestamp": new Date(photoInfo.timestamp).toLocaleDateString("en-IN"),
-        "Email": photoInfo.email,
-        "FilledBy": "",
-        "EntityType": photoInfo.eventType,
-        "KailasaOrCategory": photoInfo.entity,
-        "Country": "",
-        "State": "",
-        "City": photoInfo.place,
-        "Zipcode": "",
-        "EventName": photoInfo.eventName,
-        "Subtitle": photoInfo.activityType,
-        "EventDate": new Date(photoInfo.startDate).toLocaleDateString("en-IN"),
-        "EventDescription": photoInfo.description + ", " + photoInfo.presidentialBriefing,
-        "Categories": photoInfo.activityType,
-        "OtherMoreDetails": "",
-        "UploadPictures": pathGrp.paths.toString(),
-        "NumberOfPeopleAttended": photoInfo.livesEnriched,
-        "OnlineInPersonEvent": "",
-        "WasFoodServed": "",
-        "HowManyPlatesOfFoodWereServed": "",
-        "HowManyVolunteers": photoInfo.volunteerCount,
-        "DurationOfTheEvent": "",
-        "BudgetSpent": "",
-        "Aacharya": "",
-        "ChallengesFaced": "",
-        "UploadMorePictures1": pathGrp.paths1.toString(),
-        "UploadMorePictures2": pathGrp.paths2.toString(),
-        "UploadMorePictures3": pathGrp.paths3.toString(),
-        "UploadMorePictures4": pathGrp.pathsMore.toString(),
-        "UploadPDB": "",
-        "NumberOfNaivedhyamOffered": ""
-    }
+  const pathGrp = getPhotoPaths(photoInfo.files);
+  console.log(photoInfo);
 
+  let row = {
+    Timestamp: new Date(photoInfo.timestamp).toLocaleDateString("en-IN"),
+    Email: photoInfo.email,
+    FilledBy: "",
+    EntityType: photoInfo.eventType,
+    KailasaOrCategory: photoInfo.entity,
+    Country: "",
+    State: "",
+    City: photoInfo.place,
+    Zipcode: "",
+    EventName: photoInfo.eventName,
+    Subtitle: photoInfo.activityType,
+    EventDate: new Date(photoInfo.startDate).toLocaleDateString("en-IN"),
+    EventDescription:
+      photoInfo.description + ", " + photoInfo.presidentialBriefing,
+    Categories: photoInfo.activityType,
+    OtherMoreDetails: "",
+    UploadPictures: pathGrp.paths.toString(),
+    NumberOfPeopleAttended: photoInfo.livesEnriched,
+    OnlineInPersonEvent: "",
+    WasFoodServed: "",
+    HowManyPlatesOfFoodWereServed: "",
+    HowManyVolunteers: photoInfo.volunteerCount,
+    DurationOfTheEvent: "",
+    BudgetSpent: "",
+    Aacharya: "",
+    ChallengesFaced: "",
+    UploadMorePictures1: pathGrp.paths1.toString(),
+    UploadMorePictures2: pathGrp.paths2.toString(),
+    UploadMorePictures3: pathGrp.paths3.toString(),
+    UploadMorePictures4: pathGrp.pathsMore.toString(),
+    UploadPDB: "",
+    NumberOfNaivedhyamOffered: "",
+  };
 
-    const newRow = await sheet.addRow(row);
-    console.log('added a row to XL sheet');
+  const newRow = await sheet.addRow(row);
+  console.log("added a row to XL sheet");
 }
-
 
 function getPhotoPaths(files) {
-    let paths = [];
-    let paths1 = [];
-    let paths2 = [];
-    let paths3 = [];
-    let pathsMore = [];
-    if (files) {
-        count = files.length;
-        for (let i = 0; i < count; i++) {
-            const file = files[i];
-            path = file.destination.replaceAll("uploads/", "https://npediaimg.koogle.sk/") + file.filename;
+  let paths = [];
+  let paths1 = [];
+  let paths2 = [];
+  let paths3 = [];
+  let pathsMore = [];
+  if (files) {
+    count = files.length;
+    for (let i = 0; i < count; i++) {
+      const file = files[i];
+      path =
+        file.destination.replaceAll(
+          "uploads/",
+          "https://npediaimg.koogle.sk/"
+        ) + file.filename;
 
-            if (i < 10 && i >= 0) paths.push(path);
-            if (i < 20 && i >= 10) paths1.push(path);
-            if (i < 30 && i >= 20) paths2.push(path);
-            if (i < 40 && i >= 30) paths3.push(path);
-            if (i >= 40) pathsMore.push(path);
-        }
+      if (i < 10 && i >= 0) paths.push(path);
+      if (i < 20 && i >= 10) paths1.push(path);
+      if (i < 30 && i >= 20) paths2.push(path);
+      if (i < 40 && i >= 30) paths3.push(path);
+      if (i >= 40) pathsMore.push(path);
     }
-    return { paths, paths1, paths2, paths3, pathsMore };
+  }
+  return { paths, paths1, paths2, paths3, pathsMore };
 }
 
-function createWikiEventPage(photoInfo){
-var request = require('request').defaults({ jar: true }),
-    url = "https://nithyanandapedia.org/api.php";
+function createWikiEventPage(photoInfo) {
+  console.log(photoInfo);
+  const request = require("request");
+  url = "https://nithyanandapedia.org/api.php";
 
-// Step 1: GET request to fetch login token
-function getLoginToken() {
+  // Step 1: GET request to fetch login token
+  function getLoginToken() {
     var params_0 = {
-        action: "query",
-        meta: "tokens",
-        type: "login",
-        format: "json"
+      action: "query",
+      meta: "tokens",
+      type: "login",
+      format: "json",
     };
 
     request.get({ url: url, qs: params_0 }, function (error, res, body) {
-        if (error) {
-            return;
-        }
-        var data = JSON.parse(body);
-        loginRequest(data.query.tokens.logintoken);
+      if (error) {
+        return;
+      }
+      var data = JSON.parse(body);
+      loginRequest(data.query.tokens.logintoken);
     });
-}
+  }
 
-// Step 2: POST request to log in. 
-// Use of main account for login is not
-// supported. Obtain credentials via Special:BotPasswords
-// (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
-function loginRequest(login_token) {
+  // Step 2: POST request to log in.
+  // Use of main account for login is not
+  // supported. Obtain credentials via Special:BotPasswords
+  // (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
+  function loginRequest(login_token) {
     var params_1 = {
-        action: "login",
-        lgname: "Sri.shivajnana@MirroringBot",
-        lgpassword: "9l4puuip0hcb59q4u2a4dk7qcfnfcrih",
-        lgtoken: login_token,
-        format: "json"
+      action: "login",
+      lgname: "Sri.shivajnana@MirroringBot",
+      lgpassword: "9l4puuip0hcb59q4u2a4dk7qcfnfcrih",
+      lgtoken: login_token,
+      format: "json",
     };
 
     request.post({ url: url, form: params_1 }, function (error, res, body) {
-        if (error) {
-            return;
-        }
-        getCsrfToken();
+      if (error) {
+        return;
+      }
+      getCsrfToken();
     });
-}
+  }
 
-// Step 3: GET request to fetch CSRF token
-function getCsrfToken() {
+  // Step 3: GET request to fetch CSRF token
+  function getCsrfToken() {
     var params_2 = {
-        action: "query",
-        meta: "tokens",
-        format: "json"
+      action: "query",
+      meta: "tokens",
+      format: "json",
     };
 
     request.get({ url: url, qs: params_2 }, function (error, res, body) {
-        if (error) {
-            return;
-        }
-        var data = JSON.parse(body);
-        editRequest(data.query.tokens.csrftoken);
+      if (error) {
+        return;
+      }
+      var data = JSON.parse(body);
+      editRequest(data.query.tokens.csrftoken);
     });
-}
+  }
 
-const pathGrp = getPhotoPaths(photoInfo.files);
+  const pathGrp = getPhotoPaths(photoInfo.files);
 
-let content = `__NOTOC__
+  let content = `__NOTOC__
 
 ='''${photoInfo.entity} on  ${photoInfo.startDate}'''=
 
@@ -258,7 +284,9 @@ eventDuration=
 }}
 
 ${photoInfo.presidentialBriefing}
-${photoInfo.activityType.map(e=>{'#'+e.toString()})} ${photoInfo.eventType.map(e=>{'#'+e.toString()}) }
+${photoInfo.activityType.split(",").map((e) => {
+  "#" + e.toString();
+})} ${"#" + photoInfo.eventType}
 
 =='''Presidential Daily Briefing'''==
 ${pathGrp.paths.toString()}</div>
@@ -275,27 +303,29 @@ ${pathGrp.pathsMore.toString()}
 </gallery>
 </div>
 
-${photoInfo.activityType.map(e=>{ '[[Category:'+e+']]'})}
+${photoInfo.activityType.split(',').map((e) => {
+  "[[Category:" + e + "]]";
+})}
 `;
 
-// Step 4: POST request to edit a page
-function editRequest(csrf_token) {
+  // Step 4: POST request to edit a page
+  function editRequest(csrf_token) {
     var params_3 = {
-        action: "edit",
-        title: "Project:Sandbox",
-        appendtext: content,
-        token: csrf_token,
-        format: "json"
+      action: "edit",
+      title: "Project:Sandbox",
+      appendtext: content,
+      token: csrf_token,
+      format: "json",
     };
 
     request.post({ url: url, form: params_3 }, function (error, res, body) {
-        if (error) {
-            return;
-        }
-        console.log(body);
+      if (error) {
+        return;
+      }
+      console.log(body);
     });
-}
+  }
 
-// Start From Step 1
-getLoginToken();
+  // Start From Step 1
+  getLoginToken();
 }
