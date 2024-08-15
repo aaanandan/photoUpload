@@ -212,6 +212,7 @@ function createWikiEventPage(photoInfo) {
 
   // Step 1: GET request to fetch login token
   function getLoginToken() {
+    console.log("step 1");
     var params_0 = {
       action: "query",
       meta: "tokens",
@@ -233,24 +234,31 @@ function createWikiEventPage(photoInfo) {
   // supported. Obtain credentials via Special:BotPasswords
   // (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
   function loginRequest(login_token) {
+    console.log("step 2");
     var params_1 = {
       action: "login",
-      lgname: "Sri.shivajnana@MirroringBot",
-      lgpassword: "9l4puuip0hcb59q4u2a4dk7qcfnfcrih",
+      lgname: "testkailasa",
+      lgpassword: "kenyakailasa",
       lgtoken: login_token,
       format: "json",
     };
 
+    //username: Sri.mayatita
+    //password: testkailasa@660756rkmsdub45950nrqrbmr0m5mfgm
+
     request.post({ url: url, form: params_1 }, function (error, res, body) {
       if (error) {
+        console.log("error:::");
         return;
       }
+      console.log("res ::");
       getCsrfToken();
     });
   }
 
   // Step 3: GET request to fetch CSRF token
   function getCsrfToken() {
+    console.log("step 3");
     var params_2 = {
       action: "query",
       meta: "tokens",
@@ -303,16 +311,17 @@ ${pathGrp.pathsMore.toString()}
 </gallery>
 </div>
 
-${photoInfo.activityType.split(',').map((e) => {
+${photoInfo.activityType.split(",").map((e) => {
   "[[Category:" + e + "]]";
 })}
 `;
 
   // Step 4: POST request to edit a page
   function editRequest(csrf_token) {
+    console.log("step 4");
     var params_3 = {
       action: "edit",
-      title: "Project:Sandbox",
+      title: "Nithyanandapedia.org:Sandbox",
       appendtext: content,
       token: csrf_token,
       format: "json",
@@ -320,9 +329,10 @@ ${photoInfo.activityType.split(',').map((e) => {
 
     request.post({ url: url, form: params_3 }, function (error, res, body) {
       if (error) {
+        console.log("Error");
         return;
       }
-      console.log(body);
+      console.log("post response ::", url, params_3);
     });
   }
 
