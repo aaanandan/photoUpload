@@ -95,7 +95,8 @@ app.post(
         .db("photos")
         .collection("photos")
         .insertOne(photoInfo);
-      await updateSheet(photoInfo);
+      // await updateSheet(photoInfo);  const pathGrp = getPhotoPaths(photoInfo.files);
+
       await createWikiEventPage(photoInfo);
       console.log(`New record added: ${result.insertedId}`);
     }
@@ -130,7 +131,7 @@ async function updateSheet(photoInfo) {
   });
 
   const doc = new GoogleSpreadsheet(
-    "1m7XDg1drzLt098iOp0IAe6jZw3BkErNFbmk6ozqnl9o",
+    "1ZPhvFi0vC3TCy2l7XAzgdSuf2Gp6HDXuvah7pqlFQ1I",
     serviceAccountAuth
   );
   await doc.loadInfo(); // loads document properties and worksheets
@@ -145,7 +146,7 @@ async function updateSheet(photoInfo) {
     Email: photoInfo.email,
     FilledBy: "",
     EntityType: photoInfo.eventType,
-    KailasaOrCategory: photoInfo.entity,
+    KailasaOrCategory: photoInfo.place,
     Country: "",
     State: "",
     City: photoInfo.place,
@@ -205,137 +206,166 @@ function getPhotoPaths(files) {
   return { paths, paths1, paths2, paths3, pathsMore };
 }
 
-function createWikiEventPage(photoInfo) {
-  console.log(photoInfo);
-  const request = require("request");
-  url = "https://nithyanandapedia.org/api.php";
+const axios = require("axios");
+const { wrapper } = require("axios-cookiejar-support");
+const tough = require("tough-cookie");
 
-  // Step 1: GET request to fetch login token
-  function getLoginToken() {
-    console.log("step 1");
-    var params_0 = {
-      action: "query",
-      meta: "tokens",
-      type: "login",
-      format: "json",
-    };
+// Define your MediaWiki API URL and credentials
+const apiUrl = "https://nithyanandapedia.org/api.php";
+const username = "testkailasa"; // replace with your username
+const password = "kenyakailasa"; // replace with your password
 
-    request.get({ url: url, qs: params_0 }, function (error, res, body) {
-      if (error) {
-        return;
-      }
-      var data = JSON.parse(body);
-      loginRequest(data.query.tokens.logintoken);
+// Create a cookie jar to store cookies
+const cookieJar = new tough.CookieJar();
+
+// Wrap axios with cookie jar support
+const api = wrapper(
+  axios.create({
+    baseURL: apiUrl,
+    withCredentials: true,
+    jar: cookieJar, // Set the cookie jar
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  })
+);
+
+// Function to login to MediaWiki
+async function login() {
+  try {
+    // Step 1: Fetch the login token
+    const loginTokenResponse = await api.get("", {
+      params: {
+        action: "query",
+        meta: "tokens",
+        type: "login",
+        format: "json",
+      },
     });
+
+    const loginToken = loginTokenResponse.data.query.tokens.logintoken;
+
+    // Step 2: Log in using the login token
+    const loginResponse = await api.post(
+      "",
+      new URLSearchParams({
+        action: "login",
+        lgname: username,
+        lgpassword: password,
+        lgtoken: loginToken,
+        format: "json",
+      })
+    );
+
+    if (loginResponse.data.login.result !== "Success") {
+      throw new Error("Login failed: " + loginResponse.data.login.reason);
+    }
+
+    console.log("Login successful!");
+  } catch (error) {
+    console.error("Error during login:", error.message);
   }
+}
 
-  // Step 2: POST request to log in.
-  // Use of main account for login is not
-  // supported. Obtain credentials via Special:BotPasswords
-  // (https://www.mediawiki.org/wiki/Special:BotPasswords) for lgname & lgpassword
-  function loginRequest(login_token) {
-    console.log("step 2");
-    var params_1 = {
-      action: "login",
-      lgname: "testkailasa",
-      lgpassword: "kenyakailasa",
-      lgtoken: login_token,
-      format: "json",
-    };
-
-    //username: Sri.mayatita
-    //password: testkailasa@660756rkmsdub45950nrqrbmr0m5mfgm
-
-    request.post({ url: url, form: params_1 }, function (error, res, body) {
-      if (error) {
-        console.log("error:::");
-        return;
-      }
-      console.log("res ::");
-      getCsrfToken();
+// Function to create a page in MediaWiki
+async function createPage(pageTitle, pageContent) {
+  try {
+    // Step 3: Get a CSRF token
+    const csrfTokenResponse = await api.get("", {
+      params: {
+        action: "query",
+        meta: "tokens",
+        format: "json",
+      },
     });
+
+    const csrfToken = csrfTokenResponse.data.query.tokens.csrftoken;
+
+    // Step 4: Use the CSRF token to create a page
+    const createPageResponse = await api.post(
+      "",
+      new URLSearchParams({
+        action: "edit",
+        title: pageTitle,
+        text: pageContent,
+        token: csrfToken,
+        format: "json",
+      })
+    );
+
+    if (
+      createPageResponse.data.edit &&
+      createPageResponse.data.edit.result === "Success"
+    ) {
+      console.log("Page created successfully!");
+    } else {
+      console.error("Failed to create page:", createPageResponse.data);
+    }
+  } catch (error) {
+    console.error("Error during page creation:", error.message);
   }
+}
 
-  // Step 3: GET request to fetch CSRF token
-  function getCsrfToken() {
-    console.log("step 3");
-    var params_2 = {
-      action: "query",
-      meta: "tokens",
-      format: "json",
-    };
-
-    request.get({ url: url, qs: params_2 }, function (error, res, body) {
-      if (error) {
-        return;
-      }
-      var data = JSON.parse(body);
-      editRequest(data.query.tokens.csrftoken);
-    });
-  }
-
+function getValue(input) {
+  if (input === "null") return "";
+  else if (input === "undefined") return "";
+  else if (input === "") return "";
+  else if (input === null) return "";
+  else if (input === undefined) return "";
+  else return input;
+}
+// Execute the login and page creation
+async function createWikiEventPage(photoInfo) {
   const pathGrp = getPhotoPaths(photoInfo.files);
+
+  await login();
 
   let content = `__NOTOC__
 
-='''${photoInfo.entity} on  ${photoInfo.startDate}'''=
+  ='''${getValue(photoInfo.place)} on  ${getValue(photoInfo.startDate)}'''=
+  
+  ==''${getValue(photoInfo.activityType)}''==
+  {{
+  EventDetails|
+  participantsCount=${getValue(photoInfo.livesEnriched)}|
+  eventType=${getValue(photoInfo.eventType)}|
+  foodServedInEvent=|
+  mealsCount=|
+  volunteersCount=${getValue(photoInfo.volunteerCount)}|
+  eventDuration=
+  }}
+  
+  ${getValue(photoInfo.description)}
+  ${getValue(photoInfo.activityType)
+    .split(",")
+    .map((e) => {
+      "#" + e.toString();
+    })} ${"#" + getValue(photoInfo.eventType)}
+  
+  =='''Presidential Daily Briefing'''==
 
-==''${photoInfo.activityType}''==
-{{
-EventDetails|
-participantsCount=${photoInfo.livesEnriched}|
-eventType=${photoInfo.eventType}|
-foodServedInEvent=|
-mealsCount=|
-volunteersCount=${photoInfo.volunteerCount}|
-eventDuration=
-}}
+  ${pathGrp.paths.toString()}</div>
+  </div>
+  
+  =='''Pictures from the day'''==
+  
+  <div id="event_pictures">
+  <gallery mode=packed-hover heights=200px>
+  ${pathGrp.paths1.toString()}
+  ${pathGrp.paths2.toString()}
+  ${pathGrp.paths3.toString()}
+  ${pathGrp.pathsMore.toString()}
+  </gallery>
+  </div>
+  
+  ${getValue(photoInfo.activityType)
+    .split(",")
+    .map((e) => {
+      "[[Category:" + e + "]]";
+    })}
+  `;
 
-${photoInfo.presidentialBriefing}
-${photoInfo.activityType.split(",").map((e) => {
-  "#" + e.toString();
-})} ${"#" + photoInfo.eventType}
-
-=='''Presidential Daily Briefing'''==
-${pathGrp.paths.toString()}</div>
-</div>
-
-=='''Pictures from the day'''==
-
-<div id="event_pictures">
-<gallery mode=packed-hover heights=200px>
-${pathGrp.paths1.toString()}
-${pathGrp.paths2.toString()}
-${pathGrp.paths3.toString()}
-${pathGrp.pathsMore.toString()}
-</gallery>
-</div>
-
-${photoInfo.activityType.split(",").map((e) => {
-  "[[Category:" + e + "]]";
-})}
-`;
-
-  // Step 4: POST request to edit a page
-  function editRequest(csrf_token) {
-    console.log("step 4");
-    var params_3 = {
-      action: "edit",
-      title: "Nithyanandapedia.org:Sandbox",
-      appendtext: content,
-      token: csrf_token,
-      format: "json",
-    };
-
-    request.post({ url: url, form: params_3 }, function (error, res, body) {
-      if (error) {
-        console.log("Error");
-        return;
-      }
-      console.log("post response ::", url, params_3);
-    });
-  }
-
-  // Start From Step 1
-  getLoginToken();
+  const title =
+    getValue(photoInfo.place) + " On " + getValue(photoInfo.startDate);
+  await createPage(title, content); // Replace with your page title and content
 }
