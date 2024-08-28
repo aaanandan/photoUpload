@@ -1,6 +1,8 @@
 const axios = require("axios");
 const { wrapper } = require("axios-cookiejar-support");
 const tough = require("tough-cookie");
+require("dotenv").config();
+
 
 // Define your MediaWiki API URL and credentials
 const apiUrl = "https://nithyanandapedia.org/api.php";
@@ -108,29 +110,29 @@ function getValue(input) {
 }
 // Execute the login and page creation
 async function createWikiEventPage(photoInfo) {
-  const pathGrp = getPhotoPaths(photoInfo.files);
+  const pathGrp = getPhotoPaths(photoInfo[15]);
 
   let content = `__NOTOC__
 
-  ='''${getValue(photoInfo.place)} on  ${getValue(photoInfo.startDate)}'''=
+  ='''${getValue(photoInfo[4])} on  ${getValue(photoInfo[11])}'''=
   
-  ==''${getValue(photoInfo.activityType)}''==
+  ==''${getValue(photoInfo[10])}''==
   {{
   EventDetails|
-  participantsCount=${getValue(photoInfo.livesEnriched)}|
-  eventType=${getValue(photoInfo.eventType)}|
+  participantsCount=${getValue(photoInfo[16])}|
+  eventType=${getValue(photoInfo[3])}|
   foodServedInEvent=|
   mealsCount=|
-  volunteersCount=${getValue(photoInfo.volunteerCount)}|
+  volunteersCount=${getValue(photoInfo[20])}|
   eventDuration=
   }}
   
-  ${getValue(photoInfo.description)}
-  ${getValue(photoInfo.activityType)
+  ${getValue(photoInfo[12])}
+  ${getValue(photoInfo[10])
     .split(",")
     .map((e) => {
       "#" + e.toString();
-    })} ${"#" + getValue(photoInfo.eventType)}
+    })} ${"#" + getValue(photoInfo[10])}
   
   =='''Presidential Daily Briefing'''==
 
@@ -148,15 +150,14 @@ async function createWikiEventPage(photoInfo) {
   </gallery>
   </div>
   
-  ${getValue(photoInfo.activityType)
+  ${getValue(photoInfo[10])
     .split(",")
     .map((e) => {
       "[[Category:" + e + "]]";
     })}
   `;
 
-  const title =
-    getValue(photoInfo.place) + " On " + getValue(photoInfo.startDate);
+  const title = getValue(photoInfo[4]) + " On " + getValue(photoInfo[11]);
   await createPage(title, content); // Replace with your page title and content
 }
 
@@ -169,13 +170,10 @@ function getPhotoPaths(files) {
   if (files) {
     files = files.split(",");
     count = files.length;
+    console.log();
     for (let i = 0; i < count; i++) {
       const file = files[i];
-      path =
-        file.destination.replaceAll(
-          "uploads/",
-          "https://npediaimg.koogle.sk/"
-        ) + file.filename;
+      const path = file;
 
       if (i < 10 && i >= 0) paths.push(path);
       if (i < 20 && i >= 10) paths1.push(path);
@@ -188,10 +186,10 @@ function getPhotoPaths(files) {
 }
 
 const fetchData = async () => {
-  //await login();
-  const spreadsheetId = "1pCJqCU54oj1bK06ikXkE2fi6YD83xiqyCERa-Dyo6_c";
-  const range = "A1:Z1000";
-  const API_KEY = "AIzaSyAGImO-2I0Uk7O3N1edx2IzNkjWWIgbFhU";
+  await login();
+  const spreadsheetId = process.env.SPREAD_SHEET_ID;
+  const range = process.env.RANGE; //
+  const API_KEY = process.env.API_KEY; // "239482"
   try {
     const response = await axios.get(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${API_KEY}`
@@ -200,12 +198,12 @@ const fetchData = async () => {
     const headers = rows[0];
 
     const tableData = rows.slice(1).map((row, index) => {
-      if (row[27] == "YES") {
-        console.log("Creating Page ", index, row[0]);
-        //createWikiEventPage(row);
-      } else console.log("Skipping row...", index, row[0]);
+      if (row[27] == "YES" || index == 25) {
+        console.log("Creating Page ", index, row);
+        createWikiEventPage(row);
+      } //else console.log("Skipping row...", index, row[0]);
     });
-    console.log(headers);
+    // console.log(headers);
   } catch (error) {
     console.error("Error fetching data", error);
   } finally {
@@ -243,4 +241,3 @@ fetchData();
     'ChallengesFaced',
     'UploadMorePictures1'
   ]*/
-  
