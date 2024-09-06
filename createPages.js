@@ -202,7 +202,7 @@ const fetchData = async () => {
     const headers = rows[0];
 
     const tableData = rows.slice(1).map((row, index) => {
-      if (row[27] == "YES" || index == 41) {
+      if (row[27] == "YES") {
         console.log("Creating Page ", index, row);
         createWikiEventPage(row);
       } //else console.log("Skipping row...", index, row[0]);
