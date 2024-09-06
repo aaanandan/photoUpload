@@ -123,7 +123,7 @@ async function createWikiEventPage(photoInfo) {
     photoInfo[11]
   )}'''=
   
-  ==''${getValue(photoInfo[10])}''==
+
   {{
   EventDetails|
   participantsCount=${getValue(photoInfo[16])}|
@@ -133,6 +133,8 @@ async function createWikiEventPage(photoInfo) {
   volunteersCount=${getValue(photoInfo[20])}|
   eventDuration=
   }}
+
+  =='''Event Description'''==
   
   ${getValue(photoInfo[12])}
   ${getValue(photoInfo[10])
@@ -141,12 +143,11 @@ async function createWikiEventPage(photoInfo) {
       "#" + e.toString();
     })} ${"#" + getValue(photoInfo[10])}
   
-  =='''Presidential Daily Briefing'''==
 
-  ${pathGrp.paths.toString()}</div>
+ =='''Pictures from the day'''==
+${pathGrp.paths.toString()}</div>
   </div>
   
-  =='''Pictures from the day'''==
   
   <div id="event_pictures">
   <gallery mode=packed-hover heights=200px>
@@ -186,7 +187,7 @@ function getPhotoPaths(files) {
     for (let i = 0; i < count; i++) {
       const file = files[i];
       const path = file;
-      let imgTag = `{{#hsimg:1|200|IMG_2331_CMP_WM|${path}}}`;
+      let imgTag = `{{#hsimg:1|200|${path.split("/")[5]}|${path}}}`;
       if (i < 10 && i >= 0) paths.push(imgTag);
       if (i < 20 && i >= 10) paths1.push(imgTag);
       if (i < 30 && i >= 20) paths2.push(imgTag);
