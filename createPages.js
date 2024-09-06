@@ -110,7 +110,13 @@ function getValue(input) {
 // Execute the login and page creation
 async function createWikiEventPage(photoInfo) {
   const pathGrp = getPhotoPaths(photoInfo[15]);
-
+  const eventCategory =
+    "events " + getValue(getValue(photoInfo[0])).split("/")[2];
+  const kailasaCategory = getValue(photoInfo[7]);
+  const eventKailasaCategory = eventCategory + " " + kailasaCategory;
+  const EventTypeCategory = getValue(photoInfo[3]);
+  const eventNameCategory = getValue(photoInfo[10]);
+  const category = getValue(photoInfo[13]);
   let content = `__NOTOC__
 
   ='''${getValue(photoInfo[4]) || getValue(photoInfo[7])} on  ${getValue(
@@ -151,13 +157,15 @@ async function createWikiEventPage(photoInfo) {
 
   </gallery>
   </div>
-  
-  ${getValue(photoInfo[10])
-    .split(",")
-    .map((e) => {
-      "[[Category:" + e + "]]";
-    })}
-  `;
+
+[[Category: ${eventCategory}]]
+[[Category: ${kailasaCategory}]]
+[[Category: ${eventKailasaCategory}]]
+[[Category: ${EventTypeCategory}]]
+[[Category: ${eventNameCategory}]]
+[[Category: ${category}]]
+
+`;
 
   const title =
     getValue(photoInfo[4]) ||
