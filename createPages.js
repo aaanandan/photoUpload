@@ -3,7 +3,6 @@ const { wrapper } = require("axios-cookiejar-support");
 const tough = require("tough-cookie");
 require("dotenv").config();
 
-
 // Define your MediaWiki API URL and credentials
 const apiUrl = "https://nithyanandapedia.org/api.php";
 const username = "testkailasa"; // replace with your username
@@ -57,7 +56,7 @@ async function login() {
 
     console.log("Login successful!");
   } catch (error) {
-    console.error("Error during login:", error.message);
+    console.error("Error during login:", error.message, error);
   }
 }
 
@@ -114,7 +113,9 @@ async function createWikiEventPage(photoInfo) {
 
   let content = `__NOTOC__
 
-  ='''${getValue(photoInfo[4])} on  ${getValue(photoInfo[11])}'''=
+  ='''${getValue(photoInfo[4]) || getValue(photoInfo[7])} on  ${getValue(
+    photoInfo[11]
+  )}'''=
   
   ==''${getValue(photoInfo[10])}''==
   {{
@@ -147,6 +148,7 @@ async function createWikiEventPage(photoInfo) {
   ${pathGrp.paths2.toString()}
   ${pathGrp.paths3.toString()}
   ${pathGrp.pathsMore.toString()}
+
   </gallery>
   </div>
   
@@ -157,7 +159,9 @@ async function createWikiEventPage(photoInfo) {
     })}
   `;
 
-  const title = getValue(photoInfo[4]) + " On " + getValue(photoInfo[11]);
+  const title =
+    getValue(photoInfo[4]) ||
+    getValue(photoInfo[7]) + " On " + getValue(photoInfo[11]);
   await createPage(title, content); // Replace with your page title and content
 }
 
@@ -170,16 +174,16 @@ function getPhotoPaths(files) {
   if (files) {
     files = files.split(",");
     count = files.length;
-    console.log();
+
     for (let i = 0; i < count; i++) {
       const file = files[i];
       const path = file;
-
-      if (i < 10 && i >= 0) paths.push(path);
-      if (i < 20 && i >= 10) paths1.push(path);
-      if (i < 30 && i >= 20) paths2.push(path);
-      if (i < 40 && i >= 30) paths3.push(path);
-      if (i >= 40) pathsMore.push(path);
+      let imgTag = `{{#hsimg:1|200|IMG_2331_CMP_WM|${path}}}`;
+      if (i < 10 && i >= 0) paths.push(imgTag);
+      if (i < 20 && i >= 10) paths1.push(imgTag);
+      if (i < 30 && i >= 20) paths2.push(imgTag);
+      if (i < 40 && i >= 30) paths3.push(imgTag);
+      if (i >= 40) pathsMore.push(imgTag);
     }
   }
   return { paths, paths1, paths2, paths3, pathsMore };
@@ -198,7 +202,7 @@ const fetchData = async () => {
     const headers = rows[0];
 
     const tableData = rows.slice(1).map((row, index) => {
-      if (row[27] == "YES" || index == 25) {
+      if (row[27] == "YES" || index == 41) {
         console.log("Creating Page ", index, row);
         createWikiEventPage(row);
       } //else console.log("Skipping row...", index, row[0]);
