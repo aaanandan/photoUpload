@@ -1,6 +1,9 @@
 # Stage 1: Build Frontend
 FROM node:18-alpine AS build-frontend
 
+# Install Git
+RUN apk add --no-cache git
+
 # Set working directory
 WORKDIR /app/frontend
 
@@ -15,6 +18,9 @@ RUN npm run build
 
 # Stage 2: Setup Backend and Serve Frontend
 FROM node:18-alpine
+
+# Install Git
+RUN apk add --no-cache git
 
 # Set working directory
 WORKDIR /app/backend
