@@ -8,7 +8,7 @@ docker build --build-arg USE_LOCAL=false --build-arg FRONTEND_ENV_PATH=/path/to/
 docker run -p 3000:3000 -v public-data:/app/backend/public -v uploads-data:/app/backend/uploads photoupload
 docker run -p 3000:3000 -v /path/on/host/public:/app/backend/public -v /path/on/host/uploads:/app/backend/uploads photoupload
 
-#remove contaner and images
+#remove container and images
 docker ps -q --filter "ancestor=photoupload" | xargs -r docker stop && \
 docker ps -aq --filter "ancestor=photoupload" | xargs -r docker rm && \
 docker images photoupload-q | xargs -r docker rmi
