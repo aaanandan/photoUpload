@@ -137,7 +137,7 @@ async function updateSheet(photoInfo) {
   });
 
   const doc = new GoogleSpreadsheet(
-    "1ZPhvFi0vC3TCy2l7XAzgdSuf2Gp6HDXuvah7pqlFQ1I",
+    process.env.SPREAD_SHEET_ID,
     serviceAccountAuth
   );
   await doc.loadInfo(); // loads document properties and worksheets
