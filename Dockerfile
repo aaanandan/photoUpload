@@ -66,4 +66,4 @@ VOLUME ["/app/backend/public", "/app/backend/uploads"]
 EXPOSE 3000
 
 # Start the backend server
-CMD ["npx", "nodemon", "server.js"]
+CMD ["npx", "nodemon", "--ignore", "uploads/**/*", "server.js"]
