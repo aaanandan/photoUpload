@@ -11,7 +11,12 @@ docker run -p 3000:3000 -v public-data:/app/backend/public -v uploads-data:/app/
 
 docker run -p 3000:3000 -v /path/on/host/public:/app/backend/public -v /path/on/host/uploads:/app/backend/uploads photoupload
 
-#remove container and images
+#remove container and images LINUX
 docker ps -q --filter "ancestor=photoupload" | xargs -r docker stop && \
 docker ps -aq --filter "ancestor=photoupload" | xargs -r docker rm && \
 docker images photoupload-q | xargs -r docker rmi
+
+#remove container and images WINDOWS
+for /f "tokens=*" %i in ('docker ps -q --filter "ancestor=photoupload"') do docker stop %i
+for /f "tokens=*" %i in ('docker ps -aq --filter "ancestor=photoupload"') do docker rm %i
+for /f "tokens=*" %i in ('docker images -q photoupload-q') do docker rmi %i
