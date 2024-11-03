@@ -1,5 +1,10 @@
 # Stage 1: Build Frontend
-FROM node:18-alpine AS build-frontend
+# FROM node:18-alpine AS build-frontend
+# In Dockerfile
+FROM node:16 AS build-frontend   # Use Node.js 16 for compatibility with OpenSSL 1.1
+
+# Install OpenSSL 1.1
+RUN apt-get update && apt-get install -y openssl=1.1.*
 
 # Install Git
 RUN apk add --no-cache git
@@ -24,9 +29,12 @@ RUN if [ -n "$FRONTEND_ENV_PATH" ]; then \
 # Build the frontend
 RUN npm run build
 
-
 # Stage 2: Setup Backend and Serve Frontend
-FROM node:18-alpine
+#FROM node:18-alpine
+FROM node:16    # Use Node.js 16 for compatibility with OpenSSL 1.1
+
+# Install OpenSSL 1.1
+RUN apt-get update && apt-get install -y openssl=1.1.*
 
 # Install Git
 RUN apk add --no-cache git
