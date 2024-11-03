@@ -20,7 +20,7 @@ function getMutlerConfig() {
   return multer.diskStorage({
     destination: (req, file, cb) => {
       const folder = getFolderName(req);
-      console.log("photo uploded to folder:::", folder);
+      console.log("photo(s) uploded to folder :", folder);
       (async () => {
         const path = await makeDir(folder);
         console.log(path);
@@ -76,7 +76,7 @@ app.post(
       JSON.stringify(photoInfo),
       function (err) {
         if (err) throw err;
-        console.log("Saved!");
+        console.log("/uploads/files.json updated.");
       }
     );
 
@@ -97,9 +97,9 @@ app.post(
         .db("photos")
         .collection("photos")
         .insertOne(photoInfo);
-      // await updateSheet(photoInfo);  const pathGrp = getPhotoPaths(photoInfo.files);
+      await updateSheet(photoInfo);  const pathGrp = getPhotoPaths(photoInfo.files);
 
-      await createWikiEventPage(photoInfo);
+      //await createWikiEventPage(photoInfo);
       console.log(`New record added: ${result.insertedId}`);
     }
     return res
