@@ -2,8 +2,6 @@
 # FROM node:18-alpine AS build-frontend
 # In Dockerfile
 FROM node:16-alpine AS build-frontend
-# Install OpenSSL 1.1
-RUN apt-get update && apt-get install -y openssl=1.1.*
 
 # Install Git
 RUN apk add --no-cache git
