@@ -2,9 +2,12 @@ docker volume create public-data
 docker volume create uploads-data
 
 #compose all
+
 docker-compose up --build
 
-#build indudival image  #docker build -t photoupload .
+#build indudival image  
+
+#docker build -t photoupload .
 docker build --build-arg USE_LOCAL=false --build-arg FRONTEND_ENV_PATH=/path/to/frontend/.env  --build-arg BACKEND_ENV_PATH=/path/to/backend/.env  -t photoupload .
 
 #run Iamge with voume(1) or with local folders(2)
