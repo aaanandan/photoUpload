@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx nodemon --ignore uploads server.js",
+    "start": "npx nodemon --ignore uploads/**/* server.js",
     "createPages": "npx nodemon --ignore uploads createPages.js"
   },
   "author": "",
