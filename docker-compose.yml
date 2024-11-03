@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  photoupload:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        #FRONTEND_ENV_PATH: .env.frontend  # Adjust as needed
+        #BACKEND_ENV_PATH: .env.backend    # Adjust as needed
+        USE_LOCAL: "false"                # Set to "true" to use local backend code
+    ports:
+      - "3000:3000"  # Map the backend port
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/photos  # MongoDB connection string
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"  # Expose MongoDB on the host
+    volumes:
+      - mongo_data:/data/db  # Persist MongoDB data
+
+volumes:
+  mongo_data:
