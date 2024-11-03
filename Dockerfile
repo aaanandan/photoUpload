@@ -1,7 +1,7 @@
 # Stage 1: Build Frontend
 # FROM node:18-alpine AS build-frontend
 # In Dockerfile
-FROM FROM node:16-alpine3.15 AS build-frontend
+FROM node:16-alpine3.15 AS build-frontend
 
 # Install Git
 RUN apk add --no-cache git
