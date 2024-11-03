@@ -31,7 +31,7 @@ RUN npm run build
 FROM node:16-alpine3.15
 
 # Install OpenSSL 1.1
-RUN apk add --no-cache openssl=1.1.1k-r0
+#RUN apk add --no-cache openssl=1.1.1k-r0
 
 # Install Git
 RUN apk add --no-cache git
