@@ -58,7 +58,7 @@ app.get("/", function (req, res) {
 app.post(
   "/upload",
   multer({ storage: getMutlerConfig() }).array("files", 200),
-  (req, res) => {
+  async(req, res) => {
     // Access uploaded files via req.files
     if (!req.files || req.files.length === 0) {
       return res.status(400).send({ message: "No files found", ...req.body });
@@ -79,9 +79,9 @@ app.post(
       }
     );
 
-     updateToDBAndXL().then(()=>{
-              return res.status(200).send({ message: "Uploded Sucessfully" });
-    }).catch(console.error);
+     await updateToDBAndXL().catch(console.error);
+     return res.status(200).send({ message: "Uploded Sucessfully" });
+  
 
     async function updateToDBAndXL() {
       const { MongoClient } = require("mongodb");
