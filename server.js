@@ -79,33 +79,33 @@ app.post(
       }
     );
 
-    const { MongoClient } = require("mongodb");
-    async function updateToDB() {
-    const uri = "mongodb://mongo:27017/";
-    const client = new MongoClient(uri);
+    return updateToDBAndXL().catch(console.error);
+
+    async function updateToDBAndXL() {
+      const { MongoClient } = require("mongodb");
+      const uri = "mongodb://mongo:27017/";
+      const client = new MongoClient(uri);
       try {
         console.log("updating to DB");
         await client.connect();
         await addRecord(client, photoInfo);
         await updateSheet(photoInfo);
         const pathGrp = getPhotoPaths(photoInfo.files);
+        return res.status(200).send({ message: "Uploded Sucessfully" });
       } finally {
         await client.close();
       }
     }
-    updateToDB().catch(console.error);
+    
     async function addRecord(client, photoInfo) {
       const result = await client
         .db("photos")
         .collection("photos")
         .insertOne(photoInfo);
-
       //await createWikiEventPage(photoInfo);
       console.log(`New record added: ${result.insertedId}`);
-          return res.status(200).send({ message: "files uploaded sucessfully to :" + folder });
   }
-    }
-);
+});
 
 app.listen(port, () => {
   console.log(`server  is running on port ${port}`);
