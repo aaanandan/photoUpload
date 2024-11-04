@@ -79,7 +79,9 @@ app.post(
       }
     );
 
-    return updateToDBAndXL().catch(console.error);
+     updateToDBAndXL().then(()=>{
+              return res.status(200).send({ message: "Uploded Sucessfully" });
+    }).catch(console.error);
 
     async function updateToDBAndXL() {
       const { MongoClient } = require("mongodb");
@@ -91,7 +93,6 @@ app.post(
         await addRecord(client, photoInfo);
         await updateSheet(photoInfo);
         const pathGrp = getPhotoPaths(photoInfo.files);
-        return res.status(200).send({ message: "Uploded Sucessfully" });
       } finally {
         await client.close();
       }
