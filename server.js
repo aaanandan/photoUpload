@@ -102,11 +102,9 @@ app.post(
 
       //await createWikiEventPage(photoInfo);
       console.log(`New record added: ${result.insertedId}`);
-    }
-    return res
-      .status(200)
-      .send({ message: "files uploaded sucessfully to :" + folder });
+          return res.status(200).send({ message: "files uploaded sucessfully to :" + folder });
   }
+    }
 );
 
 app.listen(port, () => {
