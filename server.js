@@ -84,7 +84,7 @@ app.post(
       // const uri = "mongodb://mongo:27017/"; mongodb://mongo:27017/
       // const client = new MongoClient(uri);
       try {
-        console.log("skipped update to DB");
+        console.log("updating to DB");
         await client.connect();
         await addRecord(client, photoInfo);
         await updateSheet(photoInfo);
