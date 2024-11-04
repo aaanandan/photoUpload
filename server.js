@@ -85,12 +85,12 @@ app.post(
       // const client = new MongoClient(uri);
       try {
         console.log("skipped update to DB");
-        // await client.connect();
-        // await addRecord(client, photoInfo);
+        await client.connect();
+        await addRecord(client, photoInfo);
         await updateSheet(photoInfo);
         const pathGrp = getPhotoPaths(photoInfo.files);
       } finally {
-        // await client.close();
+        await client.close();
       }
     }
     updateToDB().catch(console.error);
