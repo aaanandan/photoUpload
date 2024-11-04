@@ -1,7 +1,7 @@
 # Stage 1: Build Frontend
 # FROM node:18-alpine AS build-frontend
 # In Dockerfile
-FROM node:16-alpine3.15 AS build-frontend
+FROM node:18-alpine AS build-frontend
 
 # Install Git
 RUN apk add --no-cache git
@@ -27,8 +27,8 @@ RUN if [ -n "$FRONTEND_ENV_PATH" ]; then \
 RUN npm run build
 
 # Stage 2: Setup Backend and Serve Frontend
-#FROM node:18-alpine
-FROM node:16-alpine3.15
+FROM node:18-alpine
+#FROM node:16-alpine3.15
 
 # Install OpenSSL 1.1
 #RUN apk add --no-cache openssl=1.1.1k-r0
