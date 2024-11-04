@@ -81,8 +81,8 @@ app.post(
 
     const { MongoClient } = require("mongodb");
     async function updateToDB() {
-      // const uri = "mongodb://mongo:27017/"; mongodb://mongo:27017/
-      // const client = new MongoClient(uri);
+    const uri = "mongodb://mongo:27017/";
+    const client = new MongoClient(uri);
       try {
         console.log("updating to DB");
         await client.connect();
