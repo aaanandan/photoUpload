@@ -68,7 +68,7 @@ COPY --from=build-frontend /app/frontend/build ./public
 VOLUME ["/app/backend/public", "/app/backend/uploads"]
 
 # Expose the desired port (e.g., 3000 for Express.js)
-EXPOSE 3000
+EXPOSE 4000
 
 # Start the backend server
 CMD ["npx", "nodemon", "--ignore", "uploads/**/*", "server.js"]
