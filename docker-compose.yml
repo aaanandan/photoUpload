@@ -10,7 +10,7 @@ services:
         #BACKEND_ENV_PATH: .env.backend    # Adjust as needed
         USE_LOCAL: "false"                # Set to "true" to use local backend code
     ports:
-      - "3000:3000"  # Map the backend port
+      - "4000:4000"  # Map the backend port
     environment:
       - MONGO_URI=mongodb://mongo:27017/photos  # MongoDB connection string
     depends_on:
