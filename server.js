@@ -1,7 +1,6 @@
 const express = require("express");
 const multer = require("multer");
 const app = express();
-const port = 3000;
 var slugify = require("slugify");
 const makeDir = require("make-dir");
 const fs = require("fs");
@@ -12,6 +11,7 @@ const { GoogleSpreadsheet } = require("google-spreadsheet");
 const { JWT } = require("google-auth-library");
 require("dotenv").config();
 
+const port = process.env.PORT;
 app.use(express.static("uploads"));
 
 function getMutlerConfig() {
