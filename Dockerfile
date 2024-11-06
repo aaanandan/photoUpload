@@ -60,15 +60,18 @@ RUN npm install
 RUN if [ -n "$BACKEND_ENV_PATH" ]; then \
         cp "$BACKEND_ENV_PATH" .env; \
     fi
-
-# Copy the frontend build folder from the previous stage
-COPY --from=build-frontend /app/frontend/build ./public
-
 # Declare the public and uploads folders as volumes
 VOLUME ["/app/backend/public", "/app/backend/uploads"]
 
 # Expose the desired port (e.g., 3000 for Express.js)
 EXPOSE 4000
+
+RUN rm -rf ./public/*
+
+# Copy the frontend build folder from the previous stage
+COPY --from=build-frontend /app/frontend/build ./public
+
+RUN ls -al ./public
 
 # Start the backend server
 CMD ["npx", "nodemon", "--ignore", "uploads/**/*", "server.js"]
