@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        USE_LOCAL: "false"
+        USE_LOCAL: "true"
     ports:
       - "3500:3500"  # Map backend port 4000 in container to host port 4000
     environment:
