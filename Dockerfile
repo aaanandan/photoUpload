@@ -26,6 +26,7 @@ ARG USE_LOCAL=false
 RUN if [ "$USE_LOCAL" != "true" ]; then \
         git clone https://github.com/aaanandan/photoUpload .; \
     else \
+        cp -r ./* /app/backend/
         echo "Using local backend code"; \
     fi
 
