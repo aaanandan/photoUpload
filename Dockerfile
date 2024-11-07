@@ -44,12 +44,12 @@ RUN if [ -n "$BACKEND_ENV_PATH" ]; then \
 # Declare the public and uploads folders as volumes
 VOLUME ["/app/backend/public", "/app/backend/uploads"]
 
-# Expose the desired port (e.g., 4000)
-EXPOSE 4000
+# Expose the desired port (e.g., 3500)
+EXPOSE 3500
 
-# Health check on the app's port 4000
+# Health check on the app's port 3500
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=5 \
-  CMD curl -f http://localhost:4000 || exit 1
+  CMD curl -f http://localhost:3500 || exit 1
 
 # Start the backend server
 CMD ["npx", "nodemon", "--ignore", "uploads/**/*", "server.js"]
