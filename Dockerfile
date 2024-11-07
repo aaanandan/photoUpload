@@ -22,8 +22,9 @@ WORKDIR /app/backend
 # Build argument to decide whether to pull from GitHub or use local code
 ARG USE_LOCAL=false
 
-RUN cp -r . /app/backend/ && echo "Using local backend code"; \
-        
+#RUN cp -r . /app/backend/ && echo "Using local backend code"; \
+COPY . /app/backend/
+RUN echo "copied local backend code...to /app/backend/";
 # Clone the backend repository if USE_LOCAL is false
 #RUN if [ "$USE_LOCAL" != "true" ]; then \
 #        git clone https://github.com/aaanandan/photoUpload .; \
