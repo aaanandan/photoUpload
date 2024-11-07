@@ -46,10 +46,10 @@ const storage = multer.diskStorage({
   },
 });
 
-app.use(express.static(filepath.join(__dirname, "build")));
+app.use(express.static(filepath.join(__dirname, "public")));
 
 app.get("/", function (req, res) {
-  res.sendFile(filepath.join(__dirname, "build", "index.html"));
+  res.sendFile(filepath.join(__dirname, "public", "index.html"));
 });
 
 // const upload = multer({ storage: storage });
