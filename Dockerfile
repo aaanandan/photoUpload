@@ -46,7 +46,7 @@ RUN if [ -n "$BACKEND_ENV_PATH" ]; then \
     fi
 
 # Declare the public and uploads folders as volumes
-VOLUME ["/app/backend/public", "/app/backend/uploads"]
+# VOLUME ["/app/backend/public", "/app/backend/uploads"]
 
 # Expose the desired port (e.g., 3500)
 EXPOSE 3500
