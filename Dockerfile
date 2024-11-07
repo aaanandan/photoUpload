@@ -22,13 +22,16 @@ WORKDIR /app/backend
 # Build argument to decide whether to pull from GitHub or use local code
 ARG USE_LOCAL=false
 
+RUN git pull
+RUN cp -r ./* /app/backend/ && echo "Using local backend code"; \
+        
 # Clone the backend repository if USE_LOCAL is false
-RUN if [ "$USE_LOCAL" != "true" ]; then \
-        git clone https://github.com/aaanandan/photoUpload .; \
-    else \
-        cp -r ./* /app/backend/
-        echo "Using local backend code"; \
-    fi
+#RUN if [ "$USE_LOCAL" != "true" ]; then \
+#        git clone https://github.com/aaanandan/photoUpload .; \
+#    else \
+#        cp -r ./* /app/backend/
+#        echo "Using local backend code"; \
+#    fi
 
 # Install backend dependencies
 RUN npm install
