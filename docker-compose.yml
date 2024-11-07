@@ -15,6 +15,9 @@ services:
       - mongo
     networks:
       - mynetwork  # Assign to a custom bridge network
+    volumes:
+      - /root/kpedia/photoUpload/public:/app/backend/public
+      - /root/kpedia/photoUpload/uploads:/app/backend/uploads
 
   mongo:
     image: mongo:latest
