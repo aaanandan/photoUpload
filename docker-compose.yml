@@ -6,22 +6,28 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        #FRONTEND_ENV_PATH: .env.frontend  # Adjust as needed
-        #BACKEND_ENV_PATH: .env.backend    # Adjust as needed
-        USE_LOCAL: "false"                # Set to "true" to use local backend code
+        USE_LOCAL: "false"
     ports:
-      - "4000:4000"  # Map the backend port
+      - "4000:4000"  # Map backend port 4000 in container to host port 4000
     environment:
-      - MONGO_URI=mongodb://mongo:27017/photos  # MongoDB connection string
+      - MONGO_URI=mongodb://mongo:27017/photos
     depends_on:
       - mongo
+    networks:
+      - mynetwork  # Assign to a custom bridge network
 
   mongo:
     image: mongo:latest
     ports:
-      - "27017:27017"  # Expose MongoDB on the host
+      - "27017:27017"
     volumes:
-      - mongo_data:/data/db  # Persist MongoDB data
+      - mongo_data:/data/db
+    networks:
+      - mynetwork  # Assign to the same network as photoupload
+
+networks:
+  mynetwork:
+    driver: bridge  # Explicitly use the bridge network driver
 
 volumes:
   mongo_data:
