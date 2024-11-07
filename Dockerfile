@@ -22,7 +22,6 @@ WORKDIR /app/backend
 # Build argument to decide whether to pull from GitHub or use local code
 ARG USE_LOCAL=false
 
-RUN git pull
 RUN cp -r ./* /app/backend/ && echo "Using local backend code"; \
         
 # Clone the backend repository if USE_LOCAL is false
