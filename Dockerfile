@@ -1,77 +1,55 @@
-# Stage 1: Build Frontend
-# FROM node:18-alpine AS build-frontend
-# In Dockerfile
-FROM node:18-alpine AS build-frontend
+# Use a single-stage Dockerfile to build and serve both frontend and backend
+FROM node:18-alpine
 
-# Install Git
-RUN apk add --no-cache git
+# Install Git and Curl for cloning and health checks
+RUN apk add --no-cache git curl
 
-# Set working directory
+# FRONTEND SECTION
+# Set working directory for frontend
 WORKDIR /app/frontend
 
-# Clone the frontend repo from GitHub
+# Clone the frontend repository
 RUN git clone https://github.com/aaanandan/FE-PhotoUpload .
 
-# Install frontend dependencies
+# Install frontend dependencies and build the frontend
 RUN npm install
-
-# Build argument for frontend .env file path
-ARG FRONTEND_ENV_PATH
-
-# Copy the frontend .env file if provided
-RUN if [ -n "$FRONTEND_ENV_PATH" ]; then \
-        cp "$FRONTEND_ENV_PATH" .env; \
-    fi
-
-# Build the frontend
 RUN npm run build
 
-# Stage 2: Setup Backend and Serve Frontend
-FROM node:18-alpine
-#FROM node:16-alpine3.15
-
-# Install OpenSSL 1.1
-#RUN apk add --no-cache openssl=1.1.1k-r0
-
-# Install Git
-RUN apk add --no-cache git
-
-# Set working directory
+# BACKEND SECTION
+# Set working directory for backend
 WORKDIR /app/backend
-
-# Build argument for backend .env file path
-ARG BACKEND_ENV_PATH
 
 # Build argument to decide whether to pull from GitHub or use local code
 ARG USE_LOCAL=false
 
-# If USE_LOCAL is true, use the local backend code; otherwise, pull from GitHub
+# Clone the backend repository if USE_LOCAL is false
 RUN if [ "$USE_LOCAL" != "true" ]; then \
         git clone https://github.com/aaanandan/photoUpload .; \
+    else \
+        echo "Using local backend code"; \
     fi
-
-# Copy local backend code if USE_LOCAL is true
-COPY . .
 
 # Install backend dependencies
 RUN npm install
 
+# Copy frontend build files to the backend's public directory
+RUN mkdir -p /app/backend/public && cp -r /app/frontend/build/* /app/backend/public/
+
 # Copy the backend .env file if provided
+ARG BACKEND_ENV_PATH
 RUN if [ -n "$BACKEND_ENV_PATH" ]; then \
         cp "$BACKEND_ENV_PATH" .env; \
     fi
+
 # Declare the public and uploads folders as volumes
 VOLUME ["/app/backend/public", "/app/backend/uploads"]
 
-# Expose the desired port (e.g., 3000 for Express.js)
+# Expose the desired port (e.g., 4000)
 EXPOSE 4000
 
-RUN rm -rf ./public/*
-
-# Copy the frontend build folder from the previous stage
-COPY --from=build-frontend /app/frontend/build ./public
-
-RUN ls -al ./public
+# Health check on the app's port 4000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=5 \
+  CMD curl -f http://localhost:4000 || exit 1
 
 # Start the backend server
 CMD ["npx", "nodemon", "--ignore", "uploads/**/*", "server.js"]
