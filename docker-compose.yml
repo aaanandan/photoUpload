@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  photoupload:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USE_LOCAL: "true"
+    ports:
+      - "3500:3500"  # Map backend port 4000 in container to host port 4000
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/photos
+    depends_on:
+      - mongo
+    networks:
+      - mynetwork  # Assign to a custom bridge network
+    volumes:
+      - /root/kpedia/photoUploadData/uploads:/app/backend/uploads
+
+  mongo:
+    image: mongo:latest
+    logging:
+      driver: "none"
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - mynetwork  # Assign to the same network as photoupload
+
+networks:
+  mynetwork:
+    driver: bridge  # Explicitly use the bridge network driver
+
+volumes:
+  mongo_data:

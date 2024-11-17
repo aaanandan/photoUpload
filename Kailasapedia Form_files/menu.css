@@ -1,0 +1,27 @@
+.menu {
+  display: block;
+  position: relative;
+  z-index: 10;
+  background: #400404;
+  padding: 8px 5%;
+  margin: auto;
+}
+
+.menu_content {
+  margin: 0 auto;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  align-items: center;
+  color: #d1af83;
+}
+
+.menu_logo_img {
+  max-width: 40px;
+  width: 80%;
+  /*margin-top : auto; margin-bottom : auto;*/
+}
+
+.menu_content>span{
+  font-size: 1.5em;
+}

@@ -1,0 +1,142 @@
+body {
+    font-family: 'Noto Sans',Arial;
+    margin: 0px;
+}
+
+form#upload {
+    --light-text:               #4f4f4f;
+    --option-area-background:   #ffffe0;
+    --option-area-border:       #fffff0;
+    --option-label-background:  #ffffb0;
+    --denote-required-color:    #afaf50;
+}
+
+form>div { 
+    margin: 5px 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* upload form css start*/
+form#upload {
+    display: flex;
+    flex-direction: column;
+}
+
+.pd_brief>textarea{
+    flex-grow: 1;
+}
+
+form#upload>div>label {
+    background: var(--option-label-background);
+    padding : 2px 15px;
+    border-radius: 8px;
+}
+
+form#upload>div {
+    background: var(--option-area-background);
+    border-color: var(--option-area-border);
+    border-width: 1px;
+    border-style: solid;
+    padding: 5px 10px;
+    border-radius: 10px;
+}
+
+form#upload>div>span.helptext {
+    font-size: 0.8em;
+    margin: 5px 10px;
+    text-align: justify;
+    color: var(--light-text);
+    width: 100%;
+}
+
+form#upload>div>span.denote_required {
+    font-size: 0.65em;
+    margin: 0px;
+    padding:0px;
+    text-align: right;
+    font-weight: 600;
+    width: 100%;
+    color: var(--denote-required-color);
+}
+
+form#upload>div>label{
+    margin-right: 10px;
+    font-weight: 600;
+}
+
+form#upload>div>input{
+    flex-grow: 1;
+}
+
+form#upload>div>input#email_id{
+    padding: 10px;
+    font-size: 1.1em;
+}
+
+form#upload>div>select {
+    flex-grow: 1;
+}
+
+form#upload>div>.select2-container {
+    flex-grow: 1;
+}
+
+form#upload>div.textarea_container label {
+    width: 100%;
+    margin-bottom: 5px;
+}
+
+form#upload>div>textarea {
+    width: 100%;
+    padding: 5px 10px;
+    font-size: 14px;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: vertical; /* Allow vertical resizing */
+    outline: none; /* Remove the default focus outline */
+    transition: border-color 0.3s ease-in-out;
+}
+
+form#upload>button {
+    margin: 10px 10px;
+    font-size: 1.2em;
+    height: 3em;
+}
+
+/* upload form css end */
+
+
+/* Login form css start*/
+
+form#login {
+    display: flex;
+    flex-direction: column;
+}
+
+form#login>div {
+    margin: 5px 10px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+form#login>div>label {
+    width : 8em;
+    font-weight: 600;
+}
+
+form#login>div>input {
+    min-width: 200px;
+    width: calc(100% - 13em);
+    height: 3em;
+}
+form#login>button {
+    margin : auto 10px;
+    height: 3em;
+}
+

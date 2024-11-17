@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="http://localhost:12346/resource/kailaasa-favicon-32x32.png">
+    <link rel="stylesheet" href="Kailasapedia%20Form_files/styles.css" type="text/css">
+    <link rel="stylesheet" href="Kailasapedia%20Form_files/menu.css" type="text/css">
+    <script src="Kailasapedia%20Form_files/script.js"></script>
+    <script src="Kailasapedia%20Form_files/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="Kailasapedia%20Form_files/flatpickr-4.6.9.min.css" type="text/css">
+    <script src="Kailasapedia%20Form_files/flatpickr-4.6.9.min.js"></script>
+    <link rel="stylesheet" href="Kailasapedia%20Form_files/select2-4.0.13.min.css" type="text/css">
+    <script src="Kailasapedia%20Form_files/select2-4.0.13.min.js"></script>
+    <script src="Kailasapedia%20Form_files/jquery.inputmask-5.0.6.min.js"></script>
+    <title>Kailasapedia Form</title>
+</head>
+
+<body data-new-gr-c-s-check-loaded="8.906.0" data-gr-ext-installed="">
+    <div class="menu">
+        <div class="menu_content">
+            <img class="menu_logo_img" src="Kailasapedia%20Form_files/kailasa-logo.png">
+            <span>Kailasapedia Form</span>
+            <img class="menu_logo_img" src="Kailasapedia%20Form_files/swamiji.png">
+        </div>
+    </div>
+
+    <form id="upload" action="http://localhost:3000/upload" method="post" enctype="multipart/form-data">
+        <div class="email_id input_container"><label for="email_id">Email id</label><input type="text" id="email_id"
+                name="email_id" required="" inputmode="email"><span id="email_id_helptext" class="helptext">Email id of
+                the person or Kailasa entity submitting this form. Please enter a valid email, <strong>which you have
+                    access to</strong>.
+                Please note, later if you register an account with this email id, you
+                will be able to find all images you uploaded with this email id. Ex. -
+                arsjp@kailaasa.org, newjerseysatsangcenter@gmail.com,
+                nithyagautama@yahoo.com etc.</span><span class="denote_required">This input field is mandatory.</span>
+            <script>    $(document).ready(function () {
+                    Inputmask("email").mask('#email_id');
+                });
+            </script>
+        </div>
+        <div class="date"><label for="date">Date of Images</label><input type="text" id="date" name="date"
+                value="2023-07-24" required="" class="flatpickr-input" readonly="readonly"><span id="date_helptext"
+                class="helptext">Select the actual date when this event took place, and the photographs/images were
+                captured.</span><span class="denote_required">This input field is mandatory.</span>
+            <script>flatpickr("#date", {
+                    dateFormat: "Y-m-d", /*allowInput:true,*/
+
+                });
+            </script>
+        </div>
+        <div class="entity"><label for="entity">Place</label><select id="entity" name="entity" data-select2-id="entity"
+                tabindex="-1" class="select2-hidden-accessible" aria-hidden="true">
+                <option value="Bidadi" data-select2-id="2" selected="selected">Adikailasa AK</option>
+                <option value="TVM">KAILASA Thiruvannamalai TVM</option>
+                <option value="Madurai">KAILASA Madurai </option>
+                <option value="LA">KAILASA Los Angeles LA</option>
+                <option value="SanJose">KAILASA San Jose </option>
+                <option value="Seattle">KAILASA Seattle </option>
+                <option value="Houston">KAILASA Houston </option>
+                <option value="Toronto">KAILASA Toronto</option>
+                <option value="Ohio">KAILASA Ohio </option>
+                <option value="Oklahoma">KAILASA Oklahoma </option>
+                <option value="Mauritius">KAILASA Mauritius </option>
+                <option value="Singapore">KAILASA Singapore </option>
+                <option value="KL">KAILASA Kuala Lumpur </option>
+                <option value="Australia">KAILASA Australia </option>
+                <option value="Sripuram">KAILASA Hyderabad Sripuram</option>
+                <option value="NJ">KAILASA New Jersey </option>
+                <option value="Trishulam">KAILASA Trishulam </option>
+                <option value="Hosur">KAILASA Hosur </option>
+                <option value="Podicherry">Kailasa Pondicherry</option>
+                <option value="Essex,UK">Kailasa Essex,UK</option>
+                <option value="Chinese-world">Kailasa Chinese-world</option>
+                <option value="Salem">Kailasa Salem</option>
+                <option value="Seeragapadi">Kailasa Seeragapadi</option>
+                <option value="London">Kailasa London</option>
+                <option value="Kashi">Kailasa Kashi</option>
+                <option value="Ichapuram">kailasa Ichapuram</option>
+                <option value="Trinidad &amp; Tobago">Kailasa Trinidad &amp; Tobago</option>
+                <option value="Oragadam">Kailasa Oragadam</option>
+                <option value="Thiruchengode">Kailasa Thiruchengode</option>
+                <option value="Oklahoma">Kailasa Oklahoma</option>
+                <option value="Dubai">Kailasa Dubai</option>
+                <option value="Vadodara">Kailasa Vadodara</option>
+                <option value="Phoenix">Kailasa Phoenix</option>
+                <option value="Kozhikode">Kailasa Kozhikode</option>
+                <option value="Rajapalayam">Kailasa Rajapalayam</option>
+                <option value="Pattanam">Kailasa Pattanam</option>
+                <option value="Thanjavur">Kailasa Thanjavur </option>
+                <option value="Banashankari">Kailasa Bhanashankari</option>
+                <option value="Uttarahalli">Kailasa Uttarahalli</option>
+            </select>
+            <!-- <span class="select2 select2-container select2-container--default" dir="ltr" data-select2-id="1"
+                style="width: 628.85px;"><span class="selection"><span
+                        class="select2-selection select2-selection--single" role="combobox" aria-haspopup="true"
+                        aria-expanded="false" tabindex="0" aria-disabled="false"
+                        aria-labelledby="select2-entity-container"><span class="select2-selection__rendered"
+                            id="select2-entity-container" role="textbox" aria-readonly="true"
+                            title="Adikailasa AK">Adikailasa AK</span><span class="select2-selection__arrow"
+                            role="presentation"><b role="presentation"></b></span></span></span><span
+                    class="dropdown-wrapper" aria-hidden="true"></span></span> -->
+            <span id="entity_helptext" class="helptext">Please
+                select the KAILASA entity for which you are submitting these images. If
+                your KAILASA entity is not in the list, please contact NPedia/KPedia
+                team. </span>
+            <script>$(document).ready(function () {
+                    $('#entity').select2();
+                });
+            </script>
+        </div>
+        <div class="pd_brief textarea_container"><label for="pd_brief">Presidential Briefing</label><textarea
+                id="pd_brief" name="pd_brief" rows="5" cols="50" required=""></textarea><span id="pd_brief_helptext"
+                class="helptext">
+                <p><strong>Presidential Brief</strong> is a concise reports providing
+                    significant and publicly reportable achievements of your KAILASA entity
+                    to Swamiji - the SPH JGM HDH Bhagavan Nithyananda Paramashivam and KAILASA.
+                    These will be used as input for newsletters and other publications. Please submit these
+                    reports per the latest format, and usually it is mandatory to include numbers and statistics, some
+                    examples:</p>
+                <ul>
+                    <li>200 people were served anna daan, including 10 policemen,
+                        and 5 public healthcare workers.</li>
+                    <li>1008 Naivedyams offered on the occasion of Guru Purnima</li>
+                </ul>
+            </span><span class="denote_required">This input field is mandatory.</span></div>
+        <div class="event_type"><label for="event_type">Event Type</label>
+            <select id="event_type" name="event_type" tabindex="-1" class="select2-hidden-accessible"
+                aria-hidden="true">
+                <option value="nithyotsavam" selected="selected">Daily Rituals (Nithyotsavam)
+                </option>
+                <option value="utsavam">Festivals / Utsava</option>
+                <option value="brahmotsavam">Brahmotsavam</option>
+                <option value="seva">Special Ritual</option>
+                <option value="yoga">Yoga Session</option>
+                <option value="pm">Power Manifestation Session</option>
+                <option value="enriching">Enriching Session</option>
+                <option value="causing">Causing Session</option>
+                <option value="program">Program or Jnana classes</option>
+                <option value="darshan">Darshan of the SPH</option>
+                <option value="annadaan">Aushadha Anna daan</option>
+                <option value="anniversary">Anniversary</option>
+                <option value="inauguration">Inaugration</option>
+                <option value="sangha">Sangha meeting</option>
+                <option value="dr">Diplomatic Meeting, outreach or recognition</option>
+                <option value="cultural">Cultural Event or gathering</option>
+                <option value="secular">National or state event or holiday</option>
+                <option value="work">General work</option>
+                <option value="humanitarian">Humanitarian services or disaster relief work</option>
+                <option value="persecution">Persecution or attack</option>
+                <option value="emergency">Emergency or natural calamity</option>
+                <option value="media">Media positive coverage</option>
+            </select>
+            <script>$(document).ready(function () {
+                    $('#event_type').select2();
+                });
+            </script>
+        </div>
+        <div class="event_name input_container"><label for="event_name">Event Name</label><input type="text"
+                id="event_name" name="event_name" inputmode="text"><span id="event_name_helptext" class="helptext">Type
+                the name of the event, example : Padapuja, Gurupurnima, etc. Allowed
+                characters : alphabets, numbers, space, underscore, dash, fullstop,
+                comma, brackets, hashsymbol</span>
+            <script>    $(document).ready(function () {
+                    /* var validationRegex = /^[a-zA-Z0-9\s_\-\.\,\[\]\(\)\#]*$/; */
+                    $("#event_name").inputmask({
+                        /* regex: String(validationRegex), */
+                        regex: "^[a-zA-Z0-9\\s_\\-\\.\\,\\[\\]\\(\\)\\#]*$",
+                        placeholder: ""
+                    });
+                });
+            </script>
+        </div>
+        <div class="activity_type"><label for="activity_type">Activity Type</label><select id="activity_type"
+                name="activity_type" multiple="multiple" data-select2-id="activity_type" tabindex="-1"
+                class="select2-hidden-accessible" aria-hidden="true">
+                <option value="ritual">Puja and Rituals</option>
+                <option value="offering">Offering Services or Sevas</option>
+                <option value="session">Jnana Session</option>
+                <option value="meeting">Meeting</option>
+                <option value="yoga">Yoga Session</option>
+                <option value="healing">Spiritual Healing</option>
+                <option value="medical">Medical services</option>
+                <option value="cleaning">Cleaning</option>
+                <option value="construction">Construction or fabrication</option>
+                <option value="maintenance">Maintenance</option>
+                <option value="horticulture">Gardening, Agriculture, Horticulture</option>
+                <option value="firesaftey">Fire prevention work</option>
+                <option value="emergency">Emergency Activity</option>
+                <option value="organizing">Organizing or Inventory</option>
+                <option value="verification">Accounts verification</option>
+                <option value="dance">Traditional Dance</option>
+                <option value="arts">Traditional Arts</option>
+                <option value="cooking">Cooking</option>
+                <option value="gaushala">Gaushala Seva</option>
+                <option value="feeding">Serving or offering food</option>
+                <option value="crowd">Gatherings or crowd</option>
+                <option value="waiting">Waiting devotees</option>
+                <option value="swamiji">Swamiji the SPH</option>
+                <option value="pm">Power Manifestation</option>
+                <option value="office">Office work</option>
+                <option value="physical">Physical work</option>
+                <option value="decoration">Decoration work</option>
+                <option value="alankaram">Deity Alankaram</option>
+                <option value="preparation">Preparation</option>
+                <option value="parayanam">Parayanam chanting</option>
+                <option value="enriching_outreach">Enriching &amp; Outreach Activities</option>
+                <option value="dr_outreach">Diplomatic outreach</option>
+                <option value="dr_treaty">Diplomatic Treaty Signing</option>
+                <option value="fundraising">Causing or Fundraising</option>
+                <option value="procession">Procession</option>
+                <option value="pada_yatra">Pada Yatra</option>
+                <option value="minutes4peace">Meditation for peace</option>
+                <option value="security">Security</option>
+            </select>
+            <!-- <span class="select2 select2-container select2-container--default" dir="ltr" data-select2-id="5"
+                style="width: 613.867px;"><span class="selection"><span
+                        class="select2-selection select2-selection--multiple" role="combobox" aria-haspopup="true"
+                        aria-expanded="false" tabindex="-1" aria-disabled="false">
+                        <ul class="select2-selection__rendered">
+                            <li class="select2-search select2-search--inline"><input class="select2-search__field"
+                                    type="search" tabindex="0" autocomplete="off" autocorrect="off"
+                                    autocapitalize="none" spellcheck="false" role="searchbox" aria-autocomplete="list"
+                                    placeholder="" style="width: 0.75em;"></li>
+                        </ul>
+                    </span></span><span class="dropdown-wrapper" aria-hidden="true"></span></span>
+                     -->
+            <span id="activity_type_helptext" class="helptext">Multiple activities may be selected.</span>
+            <script>$(document).ready(function () {
+                    $('#activity_type').select2({ multiple: true });
+                });
+            </script>
+        </div>
+        <div class="volunteer_count input_container"><label for="volunteer_count">Volunteer count</label><input
+                type="number" id="volunteer_count" name="volunteer_count" min="0" step="1" value="0" required=""><span
+                id="volunteer_count_helptext" class="helptext">Enter here the total number of volunteers/monks who
+                directly worked for this event</span></div>
+        <div class="lives_enriched input_container"><label for="lives_enriched">Lives enriched</label><input
+                type="number" id="lives_enriched" name="lives_enriched" min="0" step="1" value="0" required=""><span
+                id="lives_enriched_helptext" class="helptext">Enter here the total number of people amongst the general
+                public who were benefited/enriched during this event</span></div>
+        <div class="description textarea_container"><label for="description">Description</label><textarea
+                id="description" name="description" rows="5" cols="50" required=""></textarea><span
+                id="description_helptext" class="helptext">Give a complete description of the event, in as few words as
+                possible.</span><span class="denote_required">This input field is mandatory.</span></div>
+        <div class="filesselect"><label for="files">Select files</label><input type="file" id="files" name="files"
+                accept=".jpg, .jpeg, .png, .webp" multiple="" required=""><span id="files_helptext"
+                class="helptext">Select images files and photographs of the event to upload</span><span
+                class="denote_required">This input field is mandatory.</span></div><button>Upload</button>
+    </form>
+    </div>
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"></grammarly-desktop-integration>
+
+</html>
