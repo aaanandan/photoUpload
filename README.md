@@ -26,3 +26,7 @@ docker images photoupload-q | xargs -r docker rmi
 for /f "tokens=*" %i in ('docker ps -q --filter "ancestor=photoupload"') do docker stop %i
 for /f "tokens=*" %i in ('docker ps -aq --filter "ancestor=photoupload"') do docker rm %i
 for /f "tokens=*" %i in ('docker images -q photoupload-q') do docker rmi %i
+
+# update max file wat in host machine before doing in docker 
+sudo sysctl fs.inotify.max_user_watches=524288
+sudo sysctl -p
