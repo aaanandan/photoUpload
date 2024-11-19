@@ -8,15 +8,21 @@ services:
       args:
         USE_LOCAL: "true"
     ports:
-      - "3500:3500"  # Map backend port 4000 in container to host port 4000
+      - "3500:3500"  # Map backend port 3500 in container to host port 3500
     environment:
       - MONGO_URI=mongodb://mongo:27017/photos
     depends_on:
       - mongo
+      - fluentd
     networks:
       - mynetwork  # Assign to a custom bridge network
     volumes:
       - /root/kpedia/photoUpload/uploads:/app/backend/uploads
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: "fluentd:24224"
+        tag: "photoupload_app"
 
   mongo:
     image: mongo:latest
@@ -28,6 +34,16 @@ services:
       - mongo_data:/data/db
     networks:
       - mynetwork  # Assign to the same network as photoupload
+
+  fluentd:
+    image: fluent/fluentd:v1.14-1
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    volumes:
+      - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+    networks:
+      - mynetwork
 
 networks:
   mynetwork:
