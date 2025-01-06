@@ -9,9 +9,11 @@ const cors = require("cors");
 app.use(cors());
 const { GoogleSpreadsheet } = require("google-spreadsheet");
 const { JWT } = require("google-auth-library");
-const client = require("prom-client"); // Prometheus client library
-
 require("dotenv").config();
+const bodyParser = require("body-parser");
+
+app.use(bodyParser.urlencoded({ extended: true }));
+
 
 const port = process.env.PORT;
 app.use(express.static("uploads"));
@@ -52,40 +54,6 @@ app.use(express.static(filepath.join(__dirname, "public")));
 
 app.get("/", function (req, res) {
   res.sendFile(filepath.join(__dirname, "public", "index.html"));
-});
-
-app.get("/route", function (req, res) {
-  res.json({ name: "hello" });
-});
-
-// Create a registry to hold metrics
-const register = new client.Registry();
-client.collectDefaultMetrics({ register }); // Collect default Node.js metrics
-
-// Add a custom metric (optional)
-const httpRequestCounter = new client.Counter({
-  name: "http_requests_total",
-  help: "Total number of HTTP requests",
-  labelNames: ["method", "route", "status_code"],
-});
-register.registerMetric(httpRequestCounter);
-
-// Middleware to track requests
-app.use((req, res, next) => {
-  res.on("finish", () => {
-    httpRequestCounter.inc({
-      method: req.method,
-      route: req.route?.path || req.path,
-      status_code: res.statusCode,
-    });
-  });
-  next();
-});
-
-// Metrics endpoint
-app.get("/metrics", async (req, res) => {
-  res.set("Content-Type", register.contentType);
-  res.end(await register.metrics());
 });
 
 // const upload = multer({ storage: storage });

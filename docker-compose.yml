@@ -1,23 +1,23 @@
-version: '3.8'
+version: "3.8"
 
 services:
   photoupload:
     build:
-      context: .
+      context: ./
       dockerfile: Dockerfile
       args:
         USE_LOCAL: "true"
     ports:
-      - "3500:3500"  # Map backend port 3500 in container to host port 3500
+      - "3500:3500" # Expose the backend API
     environment:
       - MONGO_URI=mongodb://mongo:27017/photos
     depends_on:
       - mongo
       - fluentd
     networks:
-      - mynetwork  # Assign to a custom bridge network
+      - monitoring_network
     volumes:
-      - /root/kpedia/photoUpload/uploads:/app/backend/uploads
+      - ./uploads:/app/backend/uploads
     logging:
       driver: "fluentd"
       options:
@@ -26,28 +26,59 @@ services:
 
   mongo:
     image: mongo:latest
-    logging:
-      driver: "none"
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - ./volumes/mongo_data:/data/db
     networks:
-      - mynetwork  # Assign to the same network as photoupload
+      - monitoring_network
+    logging:
+      driver: "none"
 
   fluentd:
-    image: fluent/fluentd:v1.14-1
+    build:
+      context: .
+      dockerfile: ./fluentd/Dockerfile # Make sure this refers to the correct Dockerfile
     ports:
       - "24224:24224"
       - "24224:24224/udp"
     volumes:
       - ./fluentd/fluent.conf:/fluentd/etc/fluent.conf
+      - ./fluentd/logs:/fluentd/logs
     networks:
-      - mynetwork
+      - monitoring_network
+    environment:
+      FLUENTD_CONF: fluent.conf
+    # user: root # Ensure fluentd runs as root when installing the gem
+    # command: sh -c "gem install fluent-plugin-mail && fluentd -c /fluentd/etc/fluent.conf"
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring_network
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "admin"
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring_network
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - "1025:1025" # SMTP
+      - "8025:8025" # Web UI
+    networks:
+      - monitoring_network
 
 networks:
-  mynetwork:
-    driver: bridge  # Explicitly use the bridge network driver
-
-volumes:
-  mongo_data:
+  monitoring_network:
+    driver: bridge

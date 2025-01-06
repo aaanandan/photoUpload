@@ -1,0 +1,11 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "photoupload"
+    static_configs:
+      - targets: ["photoupload:3500"]
+
+  - job_name: "fluentd"
+    static_configs:
+      - targets: ["fluentd:24224"]
