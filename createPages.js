@@ -236,10 +236,12 @@ function getPhotoPaths(files) {
 }
 
 const fetchData = async () => {
+  console.log("Loging in to wiki...");
   await login();
   const spreadsheetId = process.env.SPREAD_SHEET_ID;
   const range = process.env.RANGE; //
   const API_KEY = process.env.API_KEY; // "239482"
+  console.log("fetching XL data...");
   try {
     const response = await axios.get(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${API_KEY}`
@@ -315,7 +317,7 @@ Addtion information:    ${userInputs}`;
 function rewriteusingAI(pageConent, userInputs) {
   const prompt = buildPrompt(pageConent, userInputs);
   console.log(prompt);
-  console.log("awaiting ai response");
+  console.log("awaiting ai response....");
   return model.generateContent(prompt).then((result) => {
     const response = result.response.text();
     console.log(response);
