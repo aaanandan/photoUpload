@@ -3,6 +3,11 @@ const { wrapper } = require("axios-cookiejar-support");
 const tough = require("tough-cookie");
 require("dotenv").config();
 
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
 // Define your MediaWiki API URL and credentials
 const apiUrl = "https://nithyanandapedia.org/api.php";
 const username = "testkailasa"; // replace with your username
@@ -171,7 +176,39 @@ ${pathGrp.paths.toString()}</div>
   const title =
     getValue(photoInfo[4]) ||
     getValue(photoInfo[7]) + " On " + getValue(photoInfo[11]);
-  await createPage(title, content); // Replace with your page title and content
+
+  let userInputs = {
+    Timestamp: photoInfo[0],
+    Email: photoInfo[1],
+    FilledBy: photoInfo[2],
+    EntityType: photoInfo[3],
+    KailasaOrCategory: photoInfo[4],
+    Country: photoInfo[5],
+    State: photoInfo[6],
+    City: photoInfo[7],
+    Zipcode: photoInfo[8],
+    EventName: photoInfo[9],
+    Subtitle: photoInfo[10],
+    EventDate: photoInfo[11],
+    EventDescription: photoInfo[12],
+    Categories: photoInfo[13],
+    OtherMoreDetails: photoInfo[14],
+    UploadPictures: photoInfo[15],
+    NumberOfPeopleAttended: photoInfo[16],
+    OnlineInPersonEvent: photoInfo[17],
+    WasFoodServed: photoInfo[18],
+    HowManyPlatesOfFoodWereServed: photoInfo[19],
+    HowManyVolunteers: photoInfo[20],
+    DurationOfTheEvent: photoInfo[21],
+    BudgetSpent: photoInfo[22],
+    Aacharya: photoInfo[23],
+    ChallengesFaced: photoInfo[24],
+    UploadMorePictures1: photoInfo[25],
+  };
+
+  const aiContent = await rewriteusingAI(content, JSON.stringify(userInputs));
+  console.log("wating for AI content....", aiContent);
+  await createPage(title, aiContent); // Replace with your page title and content
 }
 
 function getPhotoPaths(files) {
@@ -210,12 +247,12 @@ const fetchData = async () => {
     const rows = response.data.values;
     const headers = rows[0];
 
-    const tableData = rows.slice(1).map((row, index) => {
-      if (row[27] == "YES") {
-        console.log("Creating Page ", index, row);
-        createWikiEventPage(row);
-      } //else console.log("Skipping row...", index, row[0]);
-    });
+    // const tableData = rows.slice(1).map((row, index) => {
+    // if (row[27] == "YES") {
+    // console.log("Creating Page ", index, row);
+    createWikiEventPage(rows[1]);
+    // } //else console.log("Skipping row...", index, row[0]);
+    // });
     // console.log(headers);
   } catch (error) {
     console.error("Error fetching data", error);
@@ -224,6 +261,67 @@ const fetchData = async () => {
 };
 
 fetchData();
+
+function buildPrompt(pageConent, userInputs) {
+  // pageConent =
+  //   pageConent ||
+  //   "event went very well with more the 40 peoples and 100 online peoples , done annadhan, neivaithyams and abishekamna and alankaram";
+  let prompt = `\nInstructions:\n;
+
+Transform the given wiki page fomated content into  polished, professional article, in vaild wiki format,  suitable for publication on Nithyanandapedia.
+
+General Requirements:
+1. Language & Style:
+   - Use formal, professional language
+   - Ensure proper grammar and punctuation
+   - Maintain active voice where appropriate
+   - Use clear, concise sentences
+   - Avoid colloquial expressions
+
+2. Structure & Format:
+   - Organize content in logical paragraphs
+   - Use consistent formatting
+   - Include appropriate section headings if needed
+   - Maintain proper spacing and alignment
+
+3. Content Quality:
+   - Remove redundant words and phrases
+   - Add relevant context where necessary
+   - Include only factual, verifiable information
+   - Ensure terminology consistency
+   - Preserve all proper nouns and titles exactly as written
+
+4. Spiritual Context:
+   - Maintain respectful tone
+   - Include the standard blessing line: "With blessings of Supreme Pontiff of Hinduism Bhagawan Sri Nithyananda Paramashivam"
+   - Preserve the spiritual significance of the content
+   - Use correct spiritual terminology
+
+5. Technical Aspects:
+   - Follow encyclopedia writing style
+   - Add appropriate references where needed
+   - Maintain consistent date formats
+   - Use proper capitalization for sacred terms
+
+Original content: ${pageConent}
+
+Additional specific requirements for this content (if any):
+      Add specific requirements related to the particular content being transformed, below information is colleted from user to generate the given orginal
+      you can use any information below mkae the wiki page content informative. 
+Addtion information:    ${userInputs}`;
+  return prompt;
+}
+
+function rewriteusingAI(pageConent, userInputs) {
+  const prompt = buildPrompt(pageConent, userInputs);
+  console.log(prompt);
+  console.log("awaiting ai response");
+  return model.generateContent(prompt).then((result) => {
+    const response = result.response.text();
+    console.log(response);
+    return response;
+  });
+}
 
 /*
 [
