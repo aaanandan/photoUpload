@@ -61,12 +61,16 @@ async function login() {
 
     console.log("Login successful!");
   } catch (error) {
-    console.error("Error during login:", error.message, error);
+    console.error("Error during login:", error.message);
+    exit();
   }
 }
 
 // Function to create a page in MediaWiki
 async function createPage(pageTitle, pageContent) {
+  console.log("Page creation started..");
+  let pageCreationStatus = "Started";
+  let message = "all good";
   try {
     // Step 3: Get a CSRF token
     const csrfTokenResponse = await api.get("", {
@@ -96,12 +100,18 @@ async function createPage(pageTitle, pageContent) {
       createPageResponse.data.edit.result === "Success"
     ) {
       console.log("Page created successfully!");
+      pageCreationStatus = "Done";
     } else {
-      console.error("Failed to create page:", createPageResponse.data);
+      pageCreationStatus = "Failed";
+      console.error("Failed to create page, see csv for more details");
     }
   } catch (error) {
-    console.error("Error during page creation:", error.message);
+    pageCreationStatus = "Error";
+    message = error.message;
+    console.error("Error during page creation, see csv row for more details");
+    return { pageCreationStatus, message };
   }
+  return { pageCreationStatus, message };
 }
 
 function getValue(input) {
@@ -114,6 +124,7 @@ function getValue(input) {
 }
 // Execute the login and page creation
 async function createWikiEventPage(photoInfo) {
+  // console.log("photoinfo", photoInfo);
   const pathGrp = getPhotoPaths(photoInfo[15]);
   const eventCategory =
     "events " + getValue(getValue(photoInfo[0])).split("/")[2];
@@ -206,9 +217,10 @@ ${pathGrp.paths.toString()}</div>
     UploadMorePictures1: photoInfo[25],
   };
 
+  // console.log("content,userInput ", content, userInputs);
   const aiContent = await rewriteusingAI(content, JSON.stringify(userInputs));
-  console.log("wating for AI content....", aiContent);
-  await createPage(title, aiContent); // Replace with your page title and content
+  const response = await createPage(title, aiContent); // Replace with your page title and content
+  return response;
 }
 
 function getPhotoPaths(files) {
@@ -235,34 +247,91 @@ function getPhotoPaths(files) {
   return { paths, paths1, paths2, paths3, pathsMore };
 }
 
-const fetchData = async () => {
+const fs = require("fs");
+
+const start = async () => {
   console.log("Loging in to wiki...");
   await login();
   const spreadsheetId = process.env.SPREAD_SHEET_ID;
   const range = process.env.RANGE; //
   const API_KEY = process.env.API_KEY; // "239482"
-  console.log("fetching XL data...");
+
+  console.log("Fetching page XL data...");
   try {
     const response = await axios.get(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${API_KEY}`
     );
     const rows = response.data.values;
+    // console.log("Rows :", rows);
     const headers = rows[0];
+    // Example data
+    let retry = null;
 
-    // const tableData = rows.slice(1).map((row, index) => {
-    // if (row[27] == "YES") {
-    // console.log("Creating Page ", index, row);
-    createWikiEventPage(rows[1]);
-    // } //else console.log("Skipping row...", index, row[0]);
-    // });
-    // console.log(headers);
+    retry = await processRows(rows, retry);
+    console.log("Failed rows  ", retry);
+    if (retry.length > 1) {
+      console.log("retrying failed rows. 0 is header row ", retry);
+      retry = await processRows(
+        rows.filter((e, i) => retry.includes(i)),
+        retry
+      );
+    }
+    if (retry.length > 1) {
+      console.log("Retrying failed rows, last time..", retry);
+      retry = await processRows(
+        rows.filter((e, i) => retry.includes(i), retry)
+      );
+      console.log("Rerun for failed rows ", retry);
+    }
   } catch (error) {
-    console.error("Error fetching data", error);
+    console.error("Error fetching XL page data, Please rerun", error);
+    exit();
   } finally {
+    console.log("completed run");
   }
 };
 
-fetchData();
+start();
+
+async function processRows(rows, retry) {
+  const headers = ["rownumber", "status", "message"];
+  let statusUpdate = null;
+  let failedRows = [0];
+
+  for (let i = 1; i < rows.length; i++) {
+    let currentRow;
+    const row = rows[i];
+    if (retry != null) currentRow = retry[i];
+    else currentRow = i;
+    console.log("Processing Row:", currentRow);
+
+    // Example row processing
+    const result = await createWikiEventPage(row);
+    // row[28] = result.pageCreationStatus; // Update column AB
+    // row[29] = result.message; // Update column AC
+    statusUpdate = [[i, result.pageCreationStatus, result.message]];
+    appendOrCreateCSV(statusUpdate, headers);
+    if (result.pageCreationStatus != "Done") failedRows.push(currentRow);
+
+    // Update the row in Google Sheets
+    // const rowRange = `Sheet1!AB${i + 1}:AC${i + 1}`; // Adjust as needed
+    // console.log(
+    //   "Updating sheet >>" +
+    //     `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${rowRange}?valueInputOption=RAW&key=${API_KEY}`
+    // );
+    // await axios.put(
+    //   `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${rowRange}?valueInputOption=RAW&key=${API_KEY}`,
+    //   {
+    //     // range: rowRange,
+    //     values: [[result.pageCreationStatus, result.message]],
+    //   } // Wrap row in an array
+    // );
+    console.log("Status Updated in sheet - row num:", currentRow);
+  }
+
+  // console.log("All rows processed and updated.");
+  return failedRows;
+}
 
 function buildPrompt(pageConent, userInputs) {
   // pageConent =
@@ -270,7 +339,8 @@ function buildPrompt(pageConent, userInputs) {
   //   "event went very well with more the 40 peoples and 100 online peoples , done annadhan, neivaithyams and abishekamna and alankaram";
   let prompt = `\nInstructions:\n;
 
-Transform the given wiki page fomated content into  polished, professional article, in vaild wiki format,  suitable for publication on Nithyanandapedia.
+Transform the given wiki page fomated content into  polished, professional article, in vaild wiki format,  suitable for publication on Nithyanandapedia. Donot use gallery tag for photos section leave as it is in photos section
+
 
 General Requirements:
 1. Language & Style:
@@ -316,15 +386,49 @@ Addtion information:    ${userInputs}`;
 
 function rewriteusingAI(pageConent, userInputs) {
   const prompt = buildPrompt(pageConent, userInputs);
-  console.log(prompt);
-  console.log("awaiting ai response....");
+  // console.log(prompt);
+  console.log("Awaiting ai response....");
   return model.generateContent(prompt).then((result) => {
     const response = result.response.text();
-    console.log(response);
+    console.log("Received AI modified content.");
     return response;
   });
 }
 
+// const fs = require("fs");
+const path = require("path");
+const { stringify } = require("csv-stringify");
+const { exit } = require("process");
+
+// Define the CSV file path
+const filePath = path.join(__dirname, `output-${Date.now()}.csv`);
+
+// Function to append or create a CSV file
+function appendOrCreateCSV(data, headers = []) {
+  // Check if the file exists
+  const fileExists = fs.existsSync(filePath);
+
+  // Data to write (add headers only if file doesn't exist)
+  const rows = fileExists ? data : [headers, ...data];
+
+  stringify(rows, (err, output) => {
+    if (err) {
+      console.error("Error generating CSV:", err);
+      return;
+    }
+
+    // Write to file (append if file exists, otherwise create)
+    const writeMethod = fileExists ? fs.appendFile : fs.writeFile;
+
+    writeMethod(filePath, output, (writeErr) => {
+      if (writeErr) {
+        console.error("Error writing to file:", writeErr);
+      } else {
+        console.log("CSV file updated successfully!");
+      }
+    });
+  });
+}
 /*
 [
     'Timestamp',
