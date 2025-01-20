@@ -71,6 +71,8 @@ async function createPage(pageTitle, pageContent) {
   console.log("Page creation started..");
   let pageCreationStatus = "Started";
   let message = "all good";
+  let pageURL = "not generated";
+
   try {
     // Step 3: Get a CSRF token
     const csrfTokenResponse = await api.get("", {
@@ -94,13 +96,15 @@ async function createPage(pageTitle, pageContent) {
         format: "json",
       })
     );
-
     if (
       createPageResponse.data.edit &&
       createPageResponse.data.edit.result === "Success"
     ) {
       console.log("Page created successfully!");
       pageCreationStatus = "Done";
+      pageURL = createPageResponse.data.edit.title;
+      pageURL =
+        "https://nithyanandapedia.org/wiki/" + pageURL.replaceAll(" ", "_");
     } else {
       pageCreationStatus = "Failed";
       console.error("Failed to create page, see csv for more details");
@@ -111,7 +115,7 @@ async function createPage(pageTitle, pageContent) {
     console.error("Error during page creation, see csv row for more details");
     return { pageCreationStatus, message };
   }
-  return { pageCreationStatus, message };
+  return { pageCreationStatus, message, pageURL };
 }
 
 function getValue(input) {
@@ -267,22 +271,28 @@ const start = async () => {
     // Example data
     let retry = null;
 
-    retry = await processRows(rows, retry);
-    console.log("Failed rows  ", retry);
-    if (retry.length > 1) {
-      console.log("retrying failed rows. 0 is header row ", retry);
-      retry = await processRows(
-        rows.filter((e, i) => retry.includes(i)),
-        retry
-      );
-    }
-    if (retry.length > 1) {
-      console.log("Retrying failed rows, last time..", retry);
-      retry = await processRows(
-        rows.filter((e, i) => retry.includes(i), retry)
-      );
-      console.log("Rerun for failed rows ", retry);
-    }
+    do {
+      retry = await processRows(rows, retry);
+      console.log("Failed rows  ", retry);
+      if (retry.length > 1) {
+        console.log(
+          "Retrying failed rows. 0 is header row. Press Ctrl+c to stop ",
+          retry
+        );
+        retry = await processRows(
+          rows.filter((e, i) => retry.includes(i)),
+          retry
+        );
+      }
+    } while (retry && retry.length > 1);
+
+    // if (retry.length > 1) {
+    //   console.log("Retrying failed rows, last time..", retry);
+    //   retry = await processRows(
+    //     rows.filter((e, i) => retry.includes(i), retry)
+    //   );
+    //   console.log("Rerun for failed rows ", retry);
+    // }
   } catch (error) {
     console.error("Error fetching XL page data, Please rerun", error);
     exit();
@@ -294,7 +304,7 @@ const start = async () => {
 start();
 
 async function processRows(rows, retry) {
-  const headers = ["rownumber", "status", "message"];
+  const headers = ["rownumber", "status", "message", "url"];
   let statusUpdate = null;
   let failedRows = [0];
 
@@ -309,7 +319,9 @@ async function processRows(rows, retry) {
     const result = await createWikiEventPage(row);
     // row[28] = result.pageCreationStatus; // Update column AB
     // row[29] = result.message; // Update column AC
-    statusUpdate = [[i, result.pageCreationStatus, result.message]];
+    statusUpdate = [
+      [currentRow, result.pageCreationStatus, result.message, result.pageURL],
+    ];
     appendOrCreateCSV(statusUpdate, headers);
     if (result.pageCreationStatus != "Done") failedRows.push(currentRow);
 
@@ -399,6 +411,7 @@ function rewriteusingAI(pageConent, userInputs) {
 const path = require("path");
 const { stringify } = require("csv-stringify");
 const { exit } = require("process");
+const { url } = require("inspector");
 
 // Define the CSV file path
 const filePath = path.join(__dirname, `output-${Date.now()}.csv`);
