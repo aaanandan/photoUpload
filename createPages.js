@@ -265,14 +265,15 @@ const start = async () => {
     const response = await axios.get(
       `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/${range}?key=${API_KEY}`
     );
-    let rows = response.data.values;
-    // console.log("Rows :", rows);
-    const headers = rows[0];
-    // Example data
+    // let rows = response.data.values;
+    // // console.log("Rows :", rows);
+    // const headers = rows[0];
+    // // Example data
     let retry = null;
 
     do {
       //filter rows if this is a retry
+      let rows = response.data.values;
       rows = retry == null ? rows : rows.filter((e, i) => retry.includes(i));
       retry = await processRows(rows, retry);
       // console.log("Failed rows  ", retry);
