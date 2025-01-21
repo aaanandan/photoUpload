@@ -129,7 +129,7 @@ function getValue(input) {
 // Execute the login and page creation
 async function createWikiEventPage(photoInfo) {
   // console.log("photoinfo", photoInfo);
-  const pathGrp = getPhotoPaths(photoInfo[15]);
+  // const pathGrp = getPhotoPaths(photoInfo[15]);
   const photoSection = getPhotoPaths(photoInfo[15]);
 
   const eventCategory =
@@ -216,30 +216,6 @@ ${photoSection.galleryContent}
 }
 
 function getPhotoPaths(files) {
-  let paths = [];
-  let paths1 = [];
-  let paths2 = [];
-  let paths3 = [];
-  let pathsMore = [];
-  if (files) {
-    files = files.split(",");
-    count = files.length;
-
-    for (let i = 0; i < count; i++) {
-      const file = files[i];
-      const path = file;
-      let imgTag = `{{#hsimg:1|200|${path.split("/")[5]}|${path}}}`;
-      if (i < 10 && i >= 0) paths.push(imgTag);
-      if (i < 20 && i >= 10) paths1.push(imgTag);
-      if (i < 30 && i >= 20) paths2.push(imgTag);
-      if (i < 40 && i >= 30) paths3.push(imgTag);
-      if (i >= 40) pathsMore.push(imgTag);
-    }
-  }
-  return { paths, paths1, paths2, paths3, pathsMore };
-}
-
-function getPhotoPaths(files) {
   if (!files) return { galleryContent: "" };
 
   const fileArray = files.split(",").filter((file) => file.trim());
@@ -276,7 +252,6 @@ ${fileArray
 }
 
 const fs = require("fs");
-
 const start = async () => {
   console.log("Loging in to wiki...");
   await login();
