@@ -130,6 +130,8 @@ function getValue(input) {
 async function createWikiEventPage(photoInfo) {
   // console.log("photoinfo", photoInfo);
   const pathGrp = getPhotoPaths(photoInfo[15]);
+  const photoSection = getPhotoPaths(photoInfo[15]);
+
   const eventCategory =
     "events " + getValue(getValue(photoInfo[0])).split("/")[2];
   const kailasaCategory = getValue(photoInfo[7]);
@@ -163,21 +165,8 @@ async function createWikiEventPage(photoInfo) {
       "#" + e.toString();
     })} ${"#" + getValue(photoInfo[10])}
   
-
- =='''Pictures from the day'''==
-${pathGrp.paths.toString()}</div>
-  </div>
-  
-  
-  <div id="event_pictures">
-  <gallery mode=packed-hover heights=200px>
-  ${pathGrp.paths1.toString()}
-  ${pathGrp.paths2.toString()}
-  ${pathGrp.paths3.toString()}
-  ${pathGrp.pathsMore.toString()}
-
-  </gallery>
-  </div>
+=='''Event Photos'''==
+${photoSection.galleryContent}
 
 [[Category: ${eventCategory}]]
 [[Category: ${kailasaCategory}]]
@@ -185,7 +174,6 @@ ${pathGrp.paths.toString()}</div>
 [[Category: ${EventTypeCategory}]]
 [[Category: ${eventNameCategory}]]
 [[Category: ${category}]]
-
 `;
 
   const title =
@@ -249,6 +237,42 @@ function getPhotoPaths(files) {
     }
   }
   return { paths, paths1, paths2, paths3, pathsMore };
+}
+
+function getPhotoPaths(files) {
+  if (!files) return { galleryContent: "" };
+
+  const fileArray = files.split(",").filter((file) => file.trim());
+
+  // Create gallery section with masonry-style layout
+  const gallerySection = `=='''Event Photos'''==
+<div class="photo-gallery" style="column-count: 3; column-gap: 5px; padding: 5px;">
+${fileArray
+  .map(
+    (file) => `<div style="break-inside: avoid; margin-bottom: 5px;">
+  <img src="${file.trim()}" 
+       style="width: 100%; display: block;" 
+       onerror="this.style.display='none'" 
+       onclick="window.open('${file.trim()}', '_blank')" />
+</div>`
+  )
+  .join("\n")}
+</div>`;
+
+  // Add a responsive style block for different screen sizes
+  const styleBlock = `
+<style>
+@media (max-width: 1200px) {
+  .photo-gallery { column-count: 2; }
+}
+@media (max-width: 800px) {
+  .photo-gallery { column-count: 1; }
+}
+</style>`;
+
+  return {
+    galleryContent: styleBlock + gallerySection,
+  };
 }
 
 const fs = require("fs");
