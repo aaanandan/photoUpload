@@ -9,10 +9,10 @@ const { exit } = require("process");
 const { url } = require("inspector");
 const { marked } = require("marked");
 
-// const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // Define your MediaWiki API URL and credentials
 const apiUrl = "https://nithyanandapedia.org/api.php";
@@ -198,7 +198,7 @@ const start = async () => {
     //   console.log("Rerun for failed rows ", retry);
     // }
   } catch (error) {
-    console.error("Error fetching XL page data, Please rerun.", error);
+    console.error("Error fetching XL page data, Please rerun.");
   } finally {
     console.log("completed run");
   }
@@ -402,8 +402,8 @@ ${photosContent}
 ===Link to Facebook Posts===
 ${row[6]}
 [[category:satsang]][[Category:${month}]][[Category:${year}]]`;
-  const response = await createPage(title, content); // Replace with your page title and content
-  // console.log(content);
+  const aiContent = await rewriteusingAI(content, JSON.stringify([]));
+  const response = await createPage(title, aiContent);
   return response;
 }
 
@@ -426,7 +426,6 @@ function getPhotoPaths(files) {
   // Create gallery section with masonry-style layout
   const gallerySection = `
   =='''Event Photos'''==
-  <nowiki>
   ${styleBlock}
   <div class="photo-gallery" style="column-count: 3; column-gap: 5pxs; padding: 5px;">
   ${fileArray
@@ -440,9 +439,36 @@ function getPhotoPaths(files) {
     )
     .join("\n")}
   </div>
-  </nowiki>`;
+`;
 
   return {
     galleryContent: gallerySection,
   };
+}
+
+function buildPrompt(pageConent, userInputs) {
+  // pageConent =
+  //   pageConent ||
+  //   "event went very well with more the 40 peoples and 100 online peoples , done annadhan, neivaithyams and abishekamna and alankaram";
+  let prompt = `\nInstructions:\n;
+
+Transform the given wiki page fomated content into  more  vaild wiki format,  suitable for publication on Nithyanandapedia. Donot use gallery tag for photos section leave as it is in photos section
+
+1) use bullet point
+2) make paragrapsh whenever nessary, that is add adtiona line space afer few bullet points
+3) do not change content language, DO NOT rephrase, use as test asi just do formating changes like buttet point paragrapsh etc.   
+Original content: ${pageConent}
+`;
+  return prompt;
+}
+
+function rewriteusingAI(pageConent, userInputs) {
+  const prompt = buildPrompt(pageConent, userInputs);
+  // console.log(prompt);
+  console.log("Awaiting ai response....");
+  return model.generateContent(prompt).then((result) => {
+    const response = result.response.text();
+    console.log("Received AI modified content.");
+    return response;
+  });
 }
