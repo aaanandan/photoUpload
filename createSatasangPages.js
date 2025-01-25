@@ -395,7 +395,6 @@ ${row[3]}
 ${wikiText}
 
 
-==Photos==
 ${photosContent}
 <div align="center"> 
 
@@ -426,7 +425,6 @@ function getPhotoPaths(files) {
   // Create gallery section with masonry-style layout
   const gallerySection = `
   =='''Event Photos'''==
-  ${styleBlock}
   <div class="photo-gallery" style="column-count: 3; column-gap: 5pxs; padding: 5px;">
   ${fileArray
     .map(
@@ -442,7 +440,7 @@ function getPhotoPaths(files) {
 `;
 
   return {
-    galleryContent: gallerySection,
+    galleryContent: styleBlock + gallerySection,
   };
 }
 
@@ -456,7 +454,7 @@ Transform the given wiki page fomated content into  more  vaild wiki format,  su
 
 1) use bullet point
 2) make paragrapsh whenever nessary, that is add adtiona line space afer few bullet points
-3) do not change content language, DO NOT rephrase, use as test asi just do formating changes like buttet point paragrapsh etc.   
+3) do not change content language, DO NOT rephrase, use the text as is just do formating changes like buttet point paragrapsh etc.   
 Original content: ${pageConent}
 `;
   return prompt;
