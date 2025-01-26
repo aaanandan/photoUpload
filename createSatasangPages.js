@@ -374,7 +374,7 @@ async function createPage(pageTitle, pageContent) {
 async function createWikiSatsangPage(row) {
   const photos = row[5].replaceAll("https://", ",https://");
   const photosContent = getPhotoPaths(photos).galleryContent;
-  const title = row[1].replaceAll(" ", ",");
+  const title = row[1].replaceAll(" ", "_");
   const year = row[1].split(" ")[2];
   const month = row[1].split(" ")[1];
 
