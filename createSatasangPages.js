@@ -12,7 +12,10 @@ const { marked } = require("marked");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({
+  model: "gemini-1.5-flash",
+  max_output_tokens: 4096,
+});
 
 // Define your MediaWiki API URL and credentials
 const apiUrl = "https://nithyanandapedia.org/api.php";
@@ -198,7 +201,8 @@ const start = async () => {
     //   console.log("Rerun for failed rows ", retry);
     // }
   } catch (error) {
-    console.error("Error fetching XL page data, Please rerun.");
+    console.error("Error fetching XL page data, Please rerun.", error);
+    start(); //todo romove.
   } finally {
     console.log("completed run");
   }
@@ -240,7 +244,7 @@ async function login() {
     console.log("Login successful!");
   } catch (error) {
     console.error("Error during login:", error.message);
-    exit();
+    start();
   }
 }
 
@@ -361,10 +365,7 @@ async function createPage(pageTitle, pageContent) {
   } catch (error) {
     pageCreationStatus = "Error";
     message = error.message;
-    console.error(
-      "Error during page creation, see csv row for more details",
-      error
-    );
+    console.error("Error during page creation, see csv row for more details");
     return { pageCreationStatus, message };
   }
   return { pageCreationStatus, message, pageURL };
@@ -383,7 +384,7 @@ async function createWikiSatsangPage(row) {
   const html = marked(plainText);
   const wikiText = getWikiText(html);
 
-  const content = `
+  const template = `
 ==Title==
 ${row[2]}
 ==Link to Video: ==
@@ -392,18 +393,47 @@ ${row[3]}
 |alignment=center }}
 
 ==Transcript:==
-${wikiText}
 
 
-${photosContent}
 <div align="center"> 
 
 ===Link to Facebook Posts===
 ${row[6]}
 [[category:satsang]][[Category:${month}]][[Category:${year}]]`;
-  const aiContent = await rewriteusingAI(content, JSON.stringify([]));
+  console.log("Rewriting content using AI");
+  const aiContent = await processText(wikiText, template, photosContent);
   const response = await createPage(title, aiContent);
   return response;
+}
+
+async function processText(wikiText, template = "", photosContent) {
+  const blocks = splitTextByWordCount(wikiText, 3000);
+  if (template != "") blocks.push(template);
+  console.log(
+    "Spliting the large satsang text to " + blocks.length + " blocks"
+  );
+
+  const apiPromises = blocks.map(async (txt) => {
+    try {
+      const result = await rewriteusingAI(txt, JSON.stringify([]));
+      return result;
+    } catch (error) {
+      console.error("Error during AI rewriting call");
+      throw error;
+    }
+  });
+
+  try {
+    const allResults = await Promise.all(apiPromises);
+    let content = allResults.pop();
+    return content.replace(
+      "==Transcript:==",
+      allResults.join(" ") + photosContent
+    );
+  } catch (error) {
+    console.error("One or more api calls have failed:", error);
+    throw error;
+  }
 }
 
 function getPhotoPaths(files) {
@@ -437,10 +467,10 @@ function getPhotoPaths(files) {
     )
     .join("\n")}
   </div>
-`;
+  `;
 
   return {
-    galleryContent: styleBlock + gallerySection,
+    galleryContent: gallerySection,
   };
 }
 
@@ -450,11 +480,15 @@ function buildPrompt(pageConent, userInputs) {
   //   "event went very well with more the 40 peoples and 100 online peoples , done annadhan, neivaithyams and abishekamna and alankaram";
   let prompt = `\nInstructions:\n;
 
-Transform the given wiki page fomated content into  more  vaild wiki format,  suitable for publication on Nithyanandapedia. Donot use gallery tag for photos section leave as it is in photos section
+Transform the given wiki page fomated content into  more  vaild wiki format,  suitable for publication on Nithyanandapedia. 
 
-1) use bullet point
-2) make paragrapsh whenever nessary, that is add adtiona line space afer few bullet points
-3) do not change content language, DO NOT rephrase, use the text as is just do formating changes like buttet point paragrapsh etc.   
+1) use bullet point, 
+2) DO not change the capital letter case of alphabets from Upper to lower or from lower to upper use as is.
+3) make paragraps whenever nessary, that is add addtional  line space after few related bullet points
+4) Do not change content language, DO NOT rephrase, use the text as is just do formating changes like buttet point paragrapsh etc.  
+5) Donot use gallery tag for displaying images in 'event photos' section leave as it is in photos section. 
+
+
 Original content: ${pageConent}
 `;
   return prompt;
@@ -469,4 +503,32 @@ function rewriteusingAI(pageConent, userInputs) {
     console.log("Received AI modified content.");
     return response;
   });
+}
+
+function splitTextByWordCount(text, maxWords = 1000) {
+  if (!text || typeof text !== "string") {
+    return []; // Handle invalid input
+  }
+
+  const words = text.split(/\s+/); // Split by whitespace
+  const chunks = [];
+  let currentChunk = "";
+  let currentChunkWordCount = 0;
+
+  for (const word of words) {
+    if (currentChunkWordCount < maxWords) {
+      currentChunk += word + " ";
+      currentChunkWordCount++;
+    } else {
+      chunks.push(currentChunk.trim());
+      currentChunk = word + " ";
+      currentChunkWordCount = 1;
+    }
+  }
+
+  if (currentChunk.trim()) {
+    chunks.push(currentChunk.trim());
+  }
+
+  return chunks;
 }
