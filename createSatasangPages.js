@@ -408,7 +408,7 @@ ${row[6]}
 
 async function processText(wikiText, template = "", photosContent) {
   const blocks = splitTextByWordCount(wikiText, 3000);
-  if (template != "") blocks.push(template);
+  // if (template != "") blocks.push(template);
   console.log(
     "Spliting the large satsang text to " + blocks.length + " blocks"
   );
@@ -425,10 +425,10 @@ async function processText(wikiText, template = "", photosContent) {
 
   try {
     const allResults = await Promise.all(apiPromises);
-    let content = allResults.pop();
-    return content.replace(
+    // let content = allResults.pop();
+    return template.replace(
       "==Transcript:==",
-      allResults.join(" ") + photosContent
+      "==Transcript:=="+allResults.join(" ") + photosContent
     );
   } catch (error) {
     console.error("One or more api calls have failed:", error);
@@ -486,7 +486,7 @@ Transform the given wiki page fomated content into  more  vaild wiki format,  su
 2) DO not change the capital letter case of alphabets from Upper to lower or from lower to upper use as is.
 3) make paragraps whenever nessary, that is add addtional  line space after few related bullet points
 4) Do not change content language, DO NOT rephrase, use the text as is just do formating changes like buttet point paragrapsh etc.  
-
+5) other than ==Transcript:== section remove all other blank section with no content. do not add filler content to blank sections
 
 Original content: ${pageConent}
 `;
