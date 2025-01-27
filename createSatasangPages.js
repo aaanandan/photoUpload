@@ -486,7 +486,6 @@ Transform the given wiki page fomated content into  more  vaild wiki format,  su
 2) DO not change the capital letter case of alphabets from Upper to lower or from lower to upper use as is.
 3) make paragraps whenever nessary, that is add addtional  line space after few related bullet points
 4) Do not change content language, DO NOT rephrase, use the text as is just do formating changes like buttet point paragrapsh etc.  
-5) Donot use gallery tag for displaying images in 'event photos' section leave as it is in photos section. 
 
 
 Original content: ${pageConent}
