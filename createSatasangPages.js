@@ -394,6 +394,7 @@ ${row[2]}
 
 ==Transcript:==
 ${aiContent}
+==Event Photos==
 ${photosContent}
 
 ===Link to Facebook Posts===
@@ -445,9 +446,7 @@ function getPhotoPaths(files) {
   const fileArray = files.split(",").filter((file) => file.trim());
 
   // Create gallery section with masonry-style layout
-  const gallerySection = `
-  =='''Photos'''==
-  <div class="photo-gallery" style="column-count: 3; column-gap: 5pxs; padding: 5px;">
+  const gallerySection = `<div class="photo-gallery" style="column-count: 3; column-gap: 5pxs; padding: 5px;">
   ${fileArray
     .map(
       (file) => `<div style="break-inside: avoid; margin-bottom: 5px;">
@@ -473,13 +472,10 @@ function buildPrompt(pageConent, userInputs) {
   let prompt = `\nInstructions:\n;
 
 Transform the given wiki page fomated content into  more  vaild wiki format,  suitable for publication on Nithyanandapedia. 
-
-1) use bullet point, 
+1) Use bullet points as is, 
 2) DO not change the capital letter case of alphabets from Upper to lower or from lower to upper use as is.
-3) make paragraps whenever nessary, that is add addtional  line space after few related bullet points
+3) make paragraps whenever nessary
 4) Do not change content language, DO NOT rephrase, use the text as is just do formating changes like buttet point paragrapsh etc.  
-5) other than ==Transcript:== section remove all other blank section with no content. do not add filler content to blank sections
-
 Original content: ${pageConent}
 `;
   return prompt;
