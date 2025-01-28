@@ -399,7 +399,7 @@ ${photosContent}
 
 ===Link to Facebook Posts===
 ${row[6]}
-[[category:satsang]][[Category:${month}]][[Category:${year}]]`;
+[[category:satsang]][[Category:${year}]]`;
   const response = await createPage(title, content);
   return response;
 }
