@@ -384,38 +384,33 @@ async function createWikiSatsangPage(row) {
   const html = marked(plainText);
   const wikiText = getWikiText(html);
 
-  const template = `
-==Title==
+  console.log("Rewriting content using AI");
+  const aiContent = await processText(wikiText);
+
+  const content = `==Title==
 ${row[2]}
 ==Link to Video: ==
-{{#evu: 
-${row[3]}
-|alignment=center }}
+{{#evu: ${row[3]}|alignment=center }}
 
 ==Transcript:==
-
-
-<div align="center"> 
+${aiContent}
+${photosContent}
 
 ===Link to Facebook Posts===
 ${row[6]}
 [[category:satsang]][[Category:${month}]][[Category:${year}]]`;
-  console.log("Rewriting content using AI");
-  const aiContent = await processText(wikiText, template, photosContent);
-  const response = await createPage(title, aiContent);
+  const response = await createPage(title, content);
   return response;
 }
 
-async function processText(wikiText, template = "", photosContent) {
+async function processText(wikiText) {
   const blocks = splitTextByWordCount(wikiText, 3000);
   // if (template != "") blocks.push(template);
-  console.log(
-    "Spliting the large satsang text to " + blocks.length + " blocks"
-  );
+  console.log(blocks.length, "Text block count ");
 
-  const apiPromises = blocks.map(async (txt) => {
+  const apiPromises = blocks.map(async (txt, index) => {
     try {
-      const result = await rewriteusingAI(txt, JSON.stringify([]));
+      const result = await rewriteusingAI(txt, JSON.stringify([]), index + 1);
       return result;
     } catch (error) {
       console.error("Error during AI rewriting call");
@@ -426,10 +421,7 @@ async function processText(wikiText, template = "", photosContent) {
   try {
     const allResults = await Promise.all(apiPromises);
     // let content = allResults.pop();
-    return template.replace(
-      "==Transcript:==",
-      "==Transcript:=="+allResults.join(" ") + photosContent
-    );
+    return allResults.join(" ");
   } catch (error) {
     console.error("One or more api calls have failed:", error);
     throw error;
@@ -454,7 +446,7 @@ function getPhotoPaths(files) {
 
   // Create gallery section with masonry-style layout
   const gallerySection = `
-  =='''Event Photos'''==
+  =='''Photos'''==
   <div class="photo-gallery" style="column-count: 3; column-gap: 5pxs; padding: 5px;">
   ${fileArray
     .map(
@@ -493,13 +485,13 @@ Original content: ${pageConent}
   return prompt;
 }
 
-function rewriteusingAI(pageConent, userInputs) {
+function rewriteusingAI(pageConent, userInputs, index) {
   const prompt = buildPrompt(pageConent, userInputs);
   // console.log(prompt);
-  console.log("Awaiting ai response....");
+  console.log(index, "Awaiting ai response....");
   return model.generateContent(prompt).then((result) => {
     const response = result.response.text();
-    console.log("Received AI modified content.");
+    console.log(index, "Received AI modified content.");
     return response;
   });
 }
