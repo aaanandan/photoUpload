@@ -472,7 +472,7 @@ function buildPrompt(pageConent, userInputs) {
   let prompt = `\nInstructions:\n;
 
 Transform the given wiki page fomated content into  more  vaild wiki format,  suitable for publication on Nithyanandapedia. 
-1) Use bullet points as is, 
+1) do not add new bullet points, if buttlet points already present use it in right wiki formating
 2) DO not change the capital letter case of alphabets from Upper to lower or from lower to upper use as is.
 3) make paragraps whenever nessary
 4) Do not change content language, DO NOT rephrase, use the text as is just do formating changes like buttet point paragrapsh etc.  
