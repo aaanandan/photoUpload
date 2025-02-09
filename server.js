@@ -33,7 +33,7 @@ function getMutlerConfig() {
     },
     filename: (req, file, cb) => {
       // Define how the uploaded files should be named
-      cb(null, Date.now() + "-" + file.originalname);
+      cb(null, Date.now() + "-" + file.originalname.replaceAll(' ','_'));
     },
   });
 }
