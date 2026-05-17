@@ -28,11 +28,12 @@ const API_URL = "https://nithyanandapedia.org/api.php";
 const OUTPUT_DIR = path.join(__dirname, "wiki-analysis");
 const CHECKPOINT_FILE = path.join(OUTPUT_DIR, "checkpoint.json");
 
-const DELAY_MS = 400;
-const CONTENT_DELAY_MS = 200;
-const REQUEST_TIMEOUT_MS = 45000; // bumped from 30s — wiki is slow
-const MAX_RETRIES = 4;
-const RETRY_BACKOFF_MS = [2000, 4000, 8000, 16000];
+const DELAY_MS = 1500;          // polite gap between every request
+const CONTENT_DELAY_MS = 1500;  // same — origin is overloaded, don't hammer it
+const REQUEST_TIMEOUT_MS = 60000;
+const MAX_RETRIES = 5;
+// Cloudflare says retry_after: 60s on 502. Use 65s minimum, then back off further.
+const RETRY_BACKOFF_MS = [65000, 90000, 120000, 180000, 300000];
 
 const args = process.argv.slice(2);
 const getArg = (flag, fallback) => {
@@ -99,8 +100,13 @@ async function withRetry(fn, label) {
 
       if (!isRetryable || attempt === MAX_RETRIES) throw err;
 
-      const wait = RETRY_BACKOFF_MS[attempt];
-      log(`  Retry ${attempt + 1}/${MAX_RETRIES} for "${label}" after ${wait}ms (${err.message})`);
+      // Respect Cloudflare's retry_after if present (in seconds)
+      const cfRetryAfter = err.response?.data?.retry_after;
+      const wait = cfRetryAfter
+        ? cfRetryAfter * 1000 + 2000   // add 2s buffer on top of CF's suggestion
+        : RETRY_BACKOFF_MS[attempt];
+
+      log(`  502/timeout on "${label}" — waiting ${Math.round(wait / 1000)}s before retry ${attempt + 1}/${MAX_RETRIES}`);
       await sleep(wait);
     }
   }
@@ -531,9 +537,9 @@ async function main() {
 
     await sleep(CONTENT_DELAY_MS);
 
-    if ((i + 1) % 100 === 0) {
+    if ((i + 1) % 25 === 0) {
       saveCheckpoint({ allPageMeta, processedPages });
-      log(`  Checkpoint saved (${processedPages.length} pages)`);
+      log(`  Checkpoint saved (${processedPages.length}/${total} pages)`);
     }
   }
 
