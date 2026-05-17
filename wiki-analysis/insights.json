@@ -1,0 +1,55 @@
+{
+  "generatedAt": "2026-05-17T07:55:02.973Z",
+  "totalPages": 20,
+  "namespaceBreakdown": {
+    "0": 20
+  },
+  "pagesWithGallery": 0,
+  "pagesWithEventDetails": 0,
+  "pagesWithInfobox": 0,
+  "totalWords": 1503,
+  "avgWordsPerPage": 75,
+  "totalImages": 0,
+  "avgImagesPerPage": "0.00",
+  "topTemplates": [
+    {
+      "name": "#css: img.hsimg { padding: 0px 0;",
+      "count": 1
+    },
+    {
+      "name": "#evu:",
+      "count": 1
+    }
+  ],
+  "topCategories": [
+    {
+      "name": "2017",
+      "count": 1
+    },
+    {
+      "name": "Tamil",
+      "count": 1
+    },
+    {
+      "name": "தமிழ்",
+      "count": 1
+    },
+    {
+      "name": "வளப்படுத்தும் பிரசுரம்",
+      "count": 1
+    },
+    {
+      "name": "Dharana",
+      "count": 1
+    },
+    {
+      "name": "Press Meets",
+      "count": 1
+    }
+  ],
+  "migrationComplexity": {
+    "simple": 14,
+    "moderate": 0,
+    "complex": 0
+  }
+}

@@ -1,0 +1,641 @@
+{
+  "generatedAt": "2026-05-17T07:55:02.970Z",
+  "insights": {
+    "totalPages": 20,
+    "namespaceBreakdown": {
+      "0": 20
+    },
+    "pagesWithGallery": 0,
+    "pagesWithEventDetails": 0,
+    "pagesWithInfobox": 0,
+    "totalWords": 1503,
+    "avgWordsPerPage": 75,
+    "totalImages": 0,
+    "avgImagesPerPage": "0.00",
+    "topTemplates": [
+      {
+        "name": "#css: img.hsimg { padding: 0px 0;",
+        "count": 1
+      },
+      {
+        "name": "#evu:",
+        "count": 1
+      }
+    ],
+    "topCategories": [
+      {
+        "name": "2017",
+        "count": 1
+      },
+      {
+        "name": "Tamil",
+        "count": 1
+      },
+      {
+        "name": "தமிழ்",
+        "count": 1
+      },
+      {
+        "name": "வளப்படுத்தும் பிரசுரம்",
+        "count": 1
+      },
+      {
+        "name": "Dharana",
+        "count": 1
+      },
+      {
+        "name": "Press Meets",
+        "count": 1
+      }
+    ],
+    "migrationComplexity": {
+      "simple": 14,
+      "moderate": 0,
+      "complex": 0
+    }
+  },
+  "pages": [
+    {
+      "pageid": 383659,
+      "title": "\"13 மே - 2 ஜூன், 2017\"",
+      "displayTitle": "\"13 மே - 2 ஜூன், 2017\"",
+      "url": "https://nithyanandapedia.org/wiki/%2213_%E0%AE%AE%E0%AF%87_-_2_%E0%AE%9C%E0%AF%82%E0%AE%A9%E0%AF%8D,_2017%22",
+      "lastEditor": "Ma.Akshaya",
+      "lastEdited": "2020-12-21T10:55:25Z",
+      "byteSize": 8205,
+      "wikitext": "[8205 bytes — run with --save-all-wikitext to include]",
+      "categories": [
+        "2017",
+        "Tamil",
+        "தமிழ்",
+        "வளப்படுத்தும் பிரசுரம்"
+      ],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "<big>வளப்படுத்தும் பிரசுரம்</big>"
+          },
+          {
+            "level": 2,
+            "text": "13 மே - 2 ஜூன் 2017"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 348,
+        "templateNames": [
+          "#css: img.hsimg { padding: 0px 0;"
+        ]
+      }
+    },
+    {
+      "pageid": 3555,
+      "title": "\"Article: Play your game on the edge",
+      "displayTitle": "\"Article: Play your game on the edge",
+      "url": "https://nithyanandapedia.org/wiki/%22Article:_Play_your_game_on_the_edge",
+      "lastEditor": "Corina.barbu",
+      "lastEdited": "2019-04-05T15:52:00Z",
+      "byteSize": 50,
+      "wikitext": "[50 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [
+        "Articles: Play your game on the edge"
+      ],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 8,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4317,
+      "title": "\"Benefits of Dharana on the Light \"",
+      "displayTitle": "\"Benefits of Dharana on the Light \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Benefits_of_Dharana_on_the_Light_%22",
+      "lastEditor": "Ma.sadashivapriya",
+      "lastEdited": "2019-06-15T17:51:39Z",
+      "byteSize": 1280,
+      "wikitext": "[1280 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 128,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4311,
+      "title": "\"Dharana on (Shiva’s) Third Eye \"",
+      "displayTitle": "\"Dharana on (Shiva’s) Third Eye \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Dharana_on_(Shiva%E2%80%99s)_Third_Eye_%22",
+      "lastEditor": "Admin1",
+      "lastEdited": "2019-09-27T03:37:04Z",
+      "byteSize": 1200,
+      "wikitext": "[1200 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [
+        "Third Eye"
+      ],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 117,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4310,
+      "title": "\"Dharana on Kurma Nadi \"",
+      "displayTitle": "\"Dharana on Kurma Nadi \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Dharana_on_Kurma_Nadi_%22",
+      "lastEditor": "Ma.sadashivapriya",
+      "lastEdited": "2019-06-15T17:25:15Z",
+      "byteSize": 784,
+      "wikitext": "[784 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 79,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4476,
+      "title": "\"Dharana on Sunya during Action and Inaction \"",
+      "displayTitle": "\"Dharana on Sunya during Action and Inaction \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Dharana_on_Sunya_during_Action_and_Inaction_%22",
+      "lastEditor": "Admin1",
+      "lastEdited": "2019-06-17T05:19:35Z",
+      "byteSize": 58,
+      "wikitext": "[58 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [
+        "Dharana on Shunya during Action and Inaction"
+      ],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 8,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4309,
+      "title": "\"Dharana on the Cavity of the Throat \"",
+      "displayTitle": "\"Dharana on the Cavity of the Throat \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Dharana_on_the_Cavity_of_the_Throat_%22",
+      "lastEditor": "Ma.sadashivapriya",
+      "lastEdited": "2019-06-16T02:28:51Z",
+      "byteSize": 770,
+      "wikitext": "[770 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 83,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4316,
+      "title": "\"Dharana on the Light \"",
+      "displayTitle": "\"Dharana on the Light \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Dharana_on_the_Light_%22",
+      "lastEditor": "Ma.sadashivapriya",
+      "lastEdited": "2019-06-16T18:54:50Z",
+      "byteSize": 2037,
+      "wikitext": "[2037 bytes — run with --save-all-wikitext to include]",
+      "categories": [
+        "Dharana"
+      ],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Benefits"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 204,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4315,
+      "title": "\"Dharana on the Tip of Nose after Conquering All Elements \"",
+      "displayTitle": "\"Dharana on the Tip of Nose after Conquering All Elements \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Dharana_on_the_Tip_of_Nose_after_Conquering_All_Elements_%22",
+      "lastEditor": "Ma.sadashivapriya",
+      "lastEdited": "2019-06-15T17:46:10Z",
+      "byteSize": 940,
+      "wikitext": "[940 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 99,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4305,
+      "title": "\"Even One of 112 Dharanas Brings Much Powers \"",
+      "displayTitle": "\"Even One of 112 Dharanas Brings Much Powers \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Even_One_of_112_Dharanas_Brings_Much_Powers_%22",
+      "lastEditor": "Ma.sadashivapriya",
+      "lastEdited": "2019-06-16T02:26:18Z",
+      "byteSize": 754,
+      "wikitext": "[754 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 78,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4306,
+      "title": "\"Five-Fold Dharana Leads Yogi to Command Over Five Elements, Removal of Fear of Injuries (from Elements) \"",
+      "displayTitle": "\"Five-Fold Dharana Leads Yogi to Command Over Five Elements, Removal of Fear of Injuries (from Elements) \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Five-Fold_Dharana_Leads_Yogi_to_Command_Over_Five_Elements,_Removal_of_Fear_of_Injuries_(from_Elements)_%22",
+      "lastEditor": "Admin1",
+      "lastEdited": "2019-09-27T03:38:48Z",
+      "byteSize": 851,
+      "wikitext": "[851 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [
+        "Fear"
+      ],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 97,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4297,
+      "title": "\"Four Kinds of Dharanas Explained by Sadashiva \"",
+      "displayTitle": "\"Four Kinds of Dharanas Explained by Sadashiva \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Four_Kinds_of_Dharanas_Explained_by_Sadashiva_%22",
+      "lastEditor": "Admin1",
+      "lastEdited": "2019-09-27T03:39:02Z",
+      "byteSize": 728,
+      "wikitext": "[728 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [
+        "Vahni",
+        "Yoga"
+      ],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 65,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 2567,
+      "title": "\"Illiterate in Tamil But Able to Read Blindfolded Sathkriya \"-Varanasi Inner Awakening Sharing",
+      "displayTitle": "\"Illiterate in Tamil But Able to Read Blindfolded Sathkriya \"-Varanasi Inner Awakening Sharing",
+      "url": "https://nithyanandapedia.org/wiki/%22Illiterate_in_Tamil_But_Able_to_Read_Blindfolded_Sathkriya_%22-Varanasi_Inner_Awakening_Sharing",
+      "lastEditor": "Corina.barbu",
+      "lastEdited": "2019-03-15T06:33:59Z",
+      "byteSize": 332,
+      "wikitext": "[332 bytes — run with --save-all-wikitext to include]",
+      "categories": [
+        "Press Meets"
+      ],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "Description"
+          },
+          {
+            "level": 2,
+            "text": "Link to Video:"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 33,
+        "templateNames": [
+          "#evu:"
+        ]
+      }
+    },
+    {
+      "pageid": 4307,
+      "title": "\"Practice of Dharana - Yogi Overcomes Effects of Elements in Him \"",
+      "displayTitle": "\"Practice of Dharana - Yogi Overcomes Effects of Elements in Him \"",
+      "url": "https://nithyanandapedia.org/wiki/%22Practice_of_Dharana_-_Yogi_Overcomes_Effects_of_Elements_in_Him_%22",
+      "lastEditor": "Ma.sadashivapriya",
+      "lastEdited": "2019-06-15T17:14:54Z",
+      "byteSize": 1371,
+      "wikitext": "[1371 bytes — run with --save-all-wikitext to include]",
+      "categories": [],
+      "images": [],
+      "internalLinks": [],
+      "templates": [],
+      "ns": 0,
+      "contentAnalysis": {
+        "hasGallery": false,
+        "hasInfobox": false,
+        "hasEventDetails": false,
+        "hasTable": false,
+        "hasExternalLinks": false,
+        "headings": [
+          {
+            "level": 2,
+            "text": "PRAMANA"
+          },
+          {
+            "level": 2,
+            "text": "Transliteration"
+          },
+          {
+            "level": 2,
+            "text": "Translation"
+          }
+        ],
+        "externalLinkCount": 0,
+        "galleryImageCount": 0,
+        "wordCount": 156,
+        "templateNames": []
+      }
+    },
+    {
+      "pageid": 4351,
+      "title": "\"Pratikopasana- Technique \"",
+      "ns": 0,
+      "error": "timeout of 30000ms exceeded"
+    },
+    {
+      "pageid": 4356,
+      "title": "\"Pratikopasana: Best Times to Practice \"",
+      "ns": 0,
+      "error": "Request failed with status code 502"
+    },
+    {
+      "pageid": 4358,
+      "title": "\"Pratikopasana Leading Yogi to Liberation \"",
+      "ns": 0,
+      "error": "Request failed with status code 502"
+    },
+    {
+      "pageid": 4355,
+      "title": "\"Pratikopasana Practice Leads to Happiness \"",
+      "ns": 0,
+      "error": "Request failed with status code 502"
+    },
+    {
+      "pageid": 4304,
+      "title": "\"State of Bhairava is Established in Dharanas \"",
+      "ns": 0,
+      "error": "Request failed with status code 502"
+    },
+    {
+      "pageid": 17156,
+      "title": "(Dhrida",
+      "ns": 0,
+      "error": "Request failed with status code 502"
+    }
+  ]
+}
