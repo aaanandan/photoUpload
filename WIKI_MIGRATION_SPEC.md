@@ -2,7 +2,7 @@
 
 > **Purpose:** This document describes the source wiki, the actual content types found in it, and what the Payload CMS side needs to receive migrated content. Share this file with the Payload repo to design collections and an import endpoint.
 >
-> **Updated:** Based on analysis of a 20-page test crawl (see `wiki-analysis/`). Run the full crawl to validate counts across all pages.
+> **Updated:** Based on analysis of a 20-page test crawl (see `wiki-analysis/`). Full analysis pending — use XML dump method (§11) for accurate counts across all pages.
 
 ---
 
@@ -316,35 +316,57 @@ WIKI_PASSWORD=your_wiki_bot_password
 
 ## 6. Image Migration Strategy
 
-Images in the wiki are stored as direct URLs pointing to nithyanandapedia.org's file server. Three options:
+Images in the wiki are stored in the MediaWiki `images/` directory on the server (also accessible via URL). Four options:
 
 | Option | Description | Effort | Recommended for |
 |---|---|---|---|
 | **A — URL only** | Store the original wiki image URLs as strings. No re-hosting. | Low | Quick first import; images may go dead if wiki is decommissioned |
-| **B — Download + re-upload** | Script downloads each image, uploads to Payload media, replaces URL | Medium | Permanent migration — do after content import |
-| **C — Direct S3 copy** | Copy files between S3 buckets if both use S3 | Low (if infra allows) | Best if Payload uses S3 storage |
+| **B — rsync (server access)** | `rsync -avz wikiserver:/var/www/mediawiki/images/ ./wiki-images/` — copies all files in one shot | Low | **Best option if you have server access** |
+| **C — Download + re-upload** | Script downloads each image via HTTP, uploads to Payload media | Medium | When server access is not available |
+| **D — Direct S3 copy** | Copy between S3 buckets if both sides use S3 | Low (if infra allows) | Best if Payload uses S3 and wiki also stores on S3 |
 
-**Recommended plan:** Do Option A first (import content with URLs), then run a separate media migration pass (Option B) once content is validated.
+**Recommended plan:** Use Option B (rsync) to pull all images from the wiki server to local storage, then bulk-upload to Payload media. This is a one-command operation vs thousands of HTTP requests.
 
 ---
 
 ## 7. Migration Script Interface
 
-### Phase 1 — Analysis (run on your server)
+### Phase 1 — Analysis
 
+**Option A: API crawl** (no server access needed, slow — ~4h for 10k pages, 502 errors possible)
 ```bash
-# Quick test (20 pages)
-node wiki-analyze.js --limit 20
-
-# Full crawl
-node wiki-analyze.js
-
-# Include raw wikitext for ALL pages (larger output, needed for full import)
-node wiki-analyze.js --save-all-wikitext
-
-# Resume if interrupted
-node wiki-analyze.js --resume
+node wiki-analyze.js --limit 20          # quick test
+node wiki-analyze.js --save-all-wikitext # full crawl
+node wiki-analyze.js --resume            # resume if interrupted
 ```
+
+**Option B: XML dump** (requires server access — recommended, completes in minutes)
+```bash
+# Step 1: Generate dump ON THE WIKI SERVER
+cd /var/www/mediawiki
+php maintenance/dumpBackup.php --current --output=gzip:./dump.xml.gz
+
+# Step 2: Transfer the dump file
+scp user@wikiserver:/var/www/mediawiki/dump.xml.gz ./
+
+# Step 3: Run the local parser (no network, no rate limits)
+node wiki-analyze-dump.js dump.xml.gz
+node wiki-analyze-dump.js dump.xml.gz --save-wikitext   # keep full wikitext
+```
+
+**Option C: Direct MySQL** (requires DB access — seconds for full stats)
+```bash
+# Run on wiki server or via tunnel
+mysql -u root -p wikidb < wiki-mysql-analysis.sql > results.txt
+```
+
+**Speed comparison:**
+
+| Method | Time for 10,000 pages | Requires |
+|---|---|---|
+| API crawl | 4–8 hours + 502 errors | Wiki credentials |
+| XML dump parse | ~5 minutes | SSH to wiki server |
+| Direct MySQL | ~10 seconds | DB access |
 
 ### Phase 2 — Import (to be built after Payload schema confirmed)
 
@@ -397,6 +419,67 @@ Answer these before the import script (`wiki-import.js`) can be built:
 | `wiki-analysis/report.json` | Full structured data — input to import script |
 | `server.js:328–381` | Original wiki page creation code — source of truth for event page shape |
 | `WIKI_MIGRATION_SPEC.md` | This document |
+
+---
+
+## 11. Server Access Migration Workflow (Recommended)
+
+If SSH access to the wiki server is available, this is the fastest and most reliable end-to-end migration path:
+
+### Step 1 — Analyze (5 minutes)
+```bash
+# On wiki server: generate XML dump of current page versions
+cd /var/www/mediawiki
+php maintenance/dumpBackup.php --current --output=gzip:/tmp/wiki-dump.xml.gz
+
+# Transfer to your machine
+scp user@wikiserver:/tmp/wiki-dump.xml.gz ./
+
+# Run local analysis (no network, no rate limits)
+node wiki-analyze-dump.js wiki-dump.xml.gz --save-wikitext
+```
+
+### Step 2 — Get database stats (10 seconds)
+```bash
+# Either tunnel or run directly on wiki server
+mysql -u root -p wikidb < wiki-mysql-analysis.sql > wiki-db-stats.txt
+```
+
+### Step 3 — Copy all images (minutes, depends on size)
+```bash
+# rsync the entire images directory — gets originals + thumbnails
+rsync -avz --progress user@wikiserver:/var/www/mediawiki/images/ ./wiki-images/
+
+# Or just originals (skip auto-generated thumbnails)
+rsync -avz --progress --exclude='thumb/' user@wikiserver:/var/www/mediawiki/images/ ./wiki-images/
+```
+
+### Step 4 — Import to Payload
+```bash
+# Import content (reads from wiki-analysis/report.json)
+node wiki-import.js --dry-run   # verify first
+node wiki-import.js
+
+# Bulk upload images from local wiki-images/ directory
+node wiki-import-media.js ./wiki-images/
+```
+
+### MediaWiki file paths
+| Path | Contents |
+|---|---|
+| `/var/www/mediawiki/` | MediaWiki root (may differ, check `apache2` or `nginx` config) |
+| `./images/` | All uploaded media files |
+| `./images/thumb/` | Auto-generated thumbnails (not needed — Payload generates its own) |
+| `./LocalSettings.php` | DB credentials, site config |
+| `./maintenance/dumpBackup.php` | Built-in export script |
+
+### Find the MediaWiki install path
+```bash
+# If you're not sure where MediaWiki is installed:
+find / -name "LocalSettings.php" 2>/dev/null
+# Or check web server config:
+grep -r "DocumentRoot" /etc/apache2/ /etc/nginx/ 2>/dev/null
+```
 
 ---
 
