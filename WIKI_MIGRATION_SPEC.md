@@ -1,33 +1,38 @@
 # Nithyanandapedia → Payload CMS Migration Spec
 
-> **Purpose:** This document describes the data source (MediaWiki), the known data model, and the requirements for the Payload CMS side to receive migrated content. Share this with the Payload repo to design collections and an import endpoint.
+> **Purpose:** This document describes the source wiki, the actual content types found in it, and what the Payload CMS side needs to receive migrated content. Share this file with the Payload repo to design collections and an import endpoint.
+>
+> **Updated:** Based on analysis of a 20-page test crawl (see `wiki-analysis/`). Run the full crawl to validate counts across all pages.
 
 ---
 
-## 1. Source System — Nithyanandapedia
+## 1. Source System
 
-- **Type:** MediaWiki instance
-- **URL:** https://nithyanandapedia.org
-- **API:** https://nithyanandapedia.org/api.php (standard MediaWiki REST API)
-- **Access:** Requires authentication (wiki username/password via bot login flow)
-- **Content type:** Event documentation pages — each page describes one real-world event held at a Kailasa/Nithyananda center around the world
+| Property | Value |
+|---|---|
+| Type | MediaWiki |
+| URL | https://nithyanandapedia.org |
+| API | https://nithyanandapedia.org/api.php |
+| Auth | Bot login (wiki username + password via `lgtoken` flow) |
+| Access restriction | API is IP-allowlisted — must run from a trusted server |
+| Languages | English + Tamil (at minimum); Sanskrit/Devanagari also present |
 
 ---
 
-## 2. How Pages Are Created (Current Flow)
+## 2. Actual Content Types Found
 
-The existing `photoUpload` app writes wiki pages via the MediaWiki API after a volunteer uploads event photos. Understanding this creation flow reveals the exact data shape of every page.
+> **Critical finding:** The wiki is NOT just an event photo archive. It is a multi-purpose knowledge wiki with at least 6 distinct content types. Each type has a different structure and maps to a different Payload collection or content shape.
 
-### 2.1 Page Title Format
+### 2.1 Content Type: `event`
 
-```
-{place} On {startDate}
-```
+Pages documenting real-world events at Kailasa centers. Created by the `photoUpload` app.
 
+**Detection:** Has `{{EventDetails|...}}` template, OR contains the phrase "Pictures from the day" or "Presidential Daily Briefing".
+
+**Page title format:** `{place} On {startDate}`
 Example: `Singapore On 2024-03-15T10:00:00`
 
-### 2.2 Page Structure (Wikitext Template)
-
+**Wikitext structure:**
 ```mediawiki
 __NOTOC__
 
@@ -48,16 +53,15 @@ eventDuration=
 
 =='''Presidential Daily Briefing'''==
 
-{pdb_image_urls}   ← up to 10 image URLs (paths 0–9)
+{pdb_image_url_1}, {pdb_image_url_2}, ...   ← up to 10 direct image URLs
 
 =='''Pictures from the day'''==
 
 <div id="event_pictures">
 <gallery mode=packed-hover heights=200px>
-{image_urls_10_to_19}
-{image_urls_20_to_29}
-{image_urls_30_to_39}
-{image_urls_40_plus}
+{image_url_10}
+{image_url_11}
+...
 </gallery>
 </div>
 
@@ -65,134 +69,217 @@ eventDuration=
 [[Category:{eventType}]]
 ```
 
-### 2.3 Source Fields (from upload form → wiki)
+**Extracted fields:**
 
-| Wiki field | Source field | Notes |
+| Wiki field | Source | Payload field |
 |---|---|---|
-| Page title | `place` + `startDate` | Combined as "{place} On {startDate}" |
-| H1 heading | `place` + `startDate` | Human-readable title |
-| H2 subheading | `activityType` | Comma-separated activity tags |
-| `EventDetails.participantsCount` | `livesEnriched` | Number of lives enriched |
-| `EventDetails.eventType` | `eventType` | e.g. "Satsang", "Temple Program" |
-| `EventDetails.volunteersCount` | `volunteerCount` | Number of volunteers |
-| Body text | `description` | Free text description |
-| Presidential Briefing section | `presidentialBriefing` | Separate text field |
-| Gallery images (0–9) | `files[0–9]` | Used as PDB / hero images |
-| Gallery images (10–19) | `files[10–19]` | `UploadMorePictures1` |
-| Gallery images (20–29) | `files[20–29]` | `UploadMorePictures2` |
-| Gallery images (30–39) | `files[30–39]` | `UploadMorePictures3` |
-| Gallery images (40+) | `files[40+]` | `UploadMorePictures4` |
-| Categories | `activityType`, `eventType` | One category per comma-separated value |
-
-### 2.4 Additional Fields (stored in MongoDB + Google Sheet, NOT in wiki)
-
-These fields exist in the source system but were never written to the wiki. They should be included in Payload if possible:
-
-| Field | Description |
-|---|---|
-| `email` | Uploader's email |
-| `eventName` | Human-readable event name |
-| `place` | Location / Kailasa center name |
-| `country`, `state`, `city`, `zipcode` | Geographic breakdown (partially filled) |
-| `startDate` | ISO datetime of event |
-| `timestamp` | Unix timestamp of upload |
-| `presidentialBriefing` | Separate narrative field |
-| `activityType` | Comma-separated activity categories |
-| `eventType` | Single entity type |
-| `livesEnriched` | Attendance count |
-| `volunteerCount` | Volunteer count |
-| `description` | Event description body |
+| Page title | `place` + `startDate` | `title` |
+| H1 | `place` + `startDate` | `title` |
+| H2 subheading | `activityType` | `activityTypes[]` |
+| `EventDetails.participantsCount` | `livesEnriched` | `participantsCount` |
+| `EventDetails.eventType` | `eventType` | `eventType` |
+| `EventDetails.volunteersCount` | `volunteerCount` | `volunteerCount` |
+| `EventDetails.foodServedInEvent` | form field | `foodServed` |
+| `EventDetails.mealsCount` | form field | `mealsCount` |
+| `EventDetails.eventDuration` | form field | `eventDuration` |
+| Body text | `description` | `description` (rich text) |
+| Presidential Briefing section | `presidentialBriefing` | `presidentialBriefing` (rich text) |
+| First 10 image URLs | `files[0–9]` | `pdbImages[]` |
+| Gallery image URLs | `files[10+]` | `galleryImages[]` |
+| `[[Category:X]]` | `activityType`, `eventType` | `tags[]` |
 
 ---
 
-## 3. Migration Approach
+### 2.2 Content Type: `dharana`
 
-### Phase 1 — Analysis (script: `wiki-analyze.js`)
+Spiritual technique articles. The most common type in the first alphabetical pages. Structured with Sanskrit source text, transliteration, and English translation.
 
-Run on a server with API access to nithyanandapedia.org:
+**Detection:** Has a `==PRAMANA==` heading, OR has both `==Transliteration==` and `==Translation==` headings.
 
-```bash
-# Test (first 20 pages)
-node wiki-analyze.js --limit 20
+**Wikitext structure:**
+```mediawiki
+='''{technique name}'''=
 
-# Full crawl
-node wiki-analyze.js
+==PRAMANA==
+{Sanskrit or Tamil source verse}
 
-# Resume if interrupted
-node wiki-analyze.js --resume
+==Transliteration==
+{romanised transliteration}
+
+==Translation==
+{English translation}
+
+==Benefits==
+{optional benefits section}
+
+[[Category:Dharana]]
 ```
 
-Produces in `wiki-analysis/`:
-- `insights.json` — aggregate stats (template usage, categories, complexity)
-- `summary.csv` — one row per page (open in Google Sheets to review)
-- `report.json` — full structured data per page
+**Extracted fields:**
 
-### Phase 2 — Import (script to be built after Payload schema is confirmed)
+| Section | Payload field |
+|---|---|
+| H1 title | `title` |
+| PRAMANA section | `sourceText` (plain text, preserves script) |
+| Transliteration section | `transliteration` |
+| Translation section | `translation` (rich text) |
+| Benefits section | `benefits` (rich text) |
+| All categories | `tags[]` |
 
-The import script will:
-1. Read `report.json` from the analysis phase
-2. Parse each wiki page's wikitext to extract structured fields
-3. `POST` to the Payload CMS REST API to create documents
-4. Track success/failure per page with a resumable checkpoint
+---
+
+### 2.3 Content Type: `press_meet`
+
+Testimonial or press coverage pages. Short pages with a description and a video link.
+
+**Detection:** Has `[[Category:Press Meets]]`, OR has a `==Link to Video:==` heading, OR has `==Description==` + is short.
+
+**Wikitext structure:**
+```mediawiki
+='''{title}'''=
+
+==Description==
+{text description}
+
+==Link to Video:==
+{{#evu: {video_url} }}     ← embedded video template
+```
+
+**Note on `#evu:` template:** This is a MediaWiki extension template for embedding external video (likely YouTube). The URL inside needs to be extracted and stored as a plain URL in Payload.
+
+**Extracted fields:**
+
+| Section | Payload field |
+|---|---|
+| H1 title | `title` |
+| Description section | `description` (rich text) |
+| `#evu:` URL | `videoUrl` |
+| Categories | `tags[]` |
+
+---
+
+### 2.4 Content Type: `tamil`
+
+Pages where the primary content is in Tamil script. May overlap with other types (e.g., a Tamil-language dharana article). Needs special handling for:
+- Tamil Unicode characters in titles (URL encoding required)
+- Right-to-left-adjacent rendering concerns
+- Tamil category names (e.g., `[[Category:தமிழ்]]`)
+
+**Example found:** `"13 மே - 2 ஜூன், 2017"` — a Tamil newsletter/publication page with sections in Tamil.
+
+**Recommended approach:** Store as `article` type with `language: "ta"` field. Do not try to parse Tamil section structure — store as raw rich text.
+
+---
+
+### 2.5 Content Type: `redirect`
+
+Pages that are just `#REDIRECT [[Target page title]]`. These should **not** be imported as content — they should be resolved to their target and either skipped or stored as a URL alias.
+
+**Recommended approach:** Skip during import; log all redirects in a separate `redirects.json` file for the Payload team to handle via slug aliases.
+
+---
+
+### 2.6 Content Type: `stub`
+
+Pages with fewer than 100 bytes. Often incomplete or placeholder pages. Review manually before importing.
+
+---
+
+### 2.7 Content Type: `article` (catch-all)
+
+General knowledge articles that don't fit the above patterns. Import as a generic rich-text document.
+
+---
+
+## 3. Reliability Issues Found in Test Crawl
+
+> **Important for Payload team:** The wiki server is unstable. In a 20-page test, 6 pages (30%) failed with either a timeout or HTTP 502.
+
+| Issue | Count (from 20-page test) |
+|---|---|
+| HTTP 502 (Bad Gateway) | 5 pages |
+| Request timeout (>30s) | 1 page |
+| Success | 14 pages |
+
+**Implication:** The import script must be designed for partial success. The Payload API must support:
+- Idempotent upserts (so the script can safely re-run and skip already-imported pages)
+- A stable unique key per page — use `wikiPageId` (the integer MediaWiki page ID)
+
+The analysis script has been updated with retry logic (up to 4 retries, exponential backoff: 2s → 4s → 8s → 16s) and a 45-second timeout.
 
 ---
 
 ## 4. Required Payload CMS Collections
 
-### 4.1 `events` (primary collection)
+### 4.1 `wiki-pages` (unified collection, recommended approach)
 
-This is the main collection — one document per wiki page.
+Rather than separate collections per type, use a single collection with a `contentType` discriminator field. This simplifies querying and keeps migration logic straightforward.
 
 ```typescript
-// Suggested Payload collection shape
 {
-  slug: string,               // slugified page title — used as stable ID for dedup
-  title: string,              // "{place} On {startDate}"
-  place: string,              // location / Kailasa center
-  eventName: string,
+  // --- Identity ---
+  wikiPageId: number,          // MediaWiki integer page ID — UNIQUE, used for dedup/upsert
+  slug: string,                // URL-safe slug derived from title
+  title: string,               // display title
+  contentType: 'event' | 'dharana' | 'press_meet' | 'article' | 'tamil' | 'stub',
+  language: 'en' | 'ta' | 'sa' | string,  // primary language
+
+  // --- Common fields ---
+  categories: string[],        // raw wiki categories, stored as tags
+  internalLinks: string[],     // wiki page titles this page links to
+  wikiUrl: string,             // original source URL
+  lastWikiEditor: string,
+  lastWikiEditedAt: Date,
+  migratedAt: Date,
+
+  // --- Event-specific fields (populated when contentType === 'event') ---
+  place: string,
   eventDate: Date,
-  eventType: string,          // e.g. "Satsang", "Temple Program"
-  activityTypes: string[],    // parsed from comma-separated activityType
-  description: richText,      // or text — body of the page
-  presidentialBriefing: richText,
+  eventType: string,
+  activityTypes: string[],
   participantsCount: number,
   volunteerCount: number,
+  foodServed: boolean,
+  mealsCount: number,
+  eventDuration: string,
   uploaderEmail: string,
-  country: string,
-  state: string,
-  city: string,
+  description: richText,
+  presidentialBriefing: richText,
+  pdbImages: Media[],          // first 10 images (PDB section)
+  galleryImages: Media[],      // remaining gallery images
 
-  // Images — stored as relationships to a media collection
-  pdbImages: Media[],         // files[0–9]  — Presidential Daily Briefing
-  galleryImages: Media[],     // files[10+] — event gallery
+  // --- Dharana-specific fields (populated when contentType === 'dharana') ---
+  sourceText: string,          // PRAMANA section — Sanskrit/Tamil verse
+  transliteration: string,
+  translation: richText,
+  benefits: richText,
 
-  // Migration metadata
-  wikiPageId: number,         // original MediaWiki page ID
-  wikiUrl: string,            // original page URL
-  wikiLastEditor: string,
-  wikiLastEdited: Date,
-  migratedAt: Date,
+  // --- Press meet fields (populated when contentType === 'press_meet') ---
+  videoUrl: string,
+
+  // --- Generic article body ---
+  body: richText,              // used for article, tamil, and as fallback for others
 }
 ```
 
-### 4.2 `media` (or reuse Payload's built-in Media collection)
+### 4.2 `media` (Payload built-in)
 
-Payload has a built-in media collection. The migration script will need to either:
-- **Option A:** Upload each image file to Payload media (requires images to be publicly accessible from nithyanandapedia.org)
-- **Option B:** Store image URLs as strings and let a separate job download/re-upload them
-- **Option C:** Store URLs only (fastest migration, no re-hosting)
-
-**Recommendation: Option B** — store URLs now, download in a second pass.
-
-### 4.3 `categories` (optional, or use tags)
-
-If Payload is using a relational category/tag system:
-
+Reuse Payload's built-in Media collection. Add these fields:
 ```typescript
 {
-  name: string,    // e.g. "Satsang", "Temple Program", "Pada Puja"
-  slug: string,
-  type: "activityType" | "eventType"
+  sourceWikiUrl: string,   // original image URL from the wiki
+  altText: string,
+  caption: string,
+}
+```
+
+### 4.3 `redirects` (optional)
+
+If Payload needs to serve old wiki URLs:
+```typescript
+{
+  fromSlug: string,   // the redirect page title (slugified)
+  toSlug: string,     // the target page title (slugified)
 }
 ```
 
@@ -200,76 +287,69 @@ If Payload is using a relational category/tag system:
 
 ## 5. Payload API Requirements
 
-The import script will call these endpoints. Payload must expose them:
+### 5.1 Endpoints the import script will call
 
 | Operation | Endpoint | Notes |
 |---|---|---|
-| Auth | `POST /api/users/login` | Or API key header |
-| Create event | `POST /api/events` | Returns created doc ID |
+| Auth | `POST /api/users/login` | Returns JWT |
+| Check for existing page | `GET /api/wiki-pages?where[wikiPageId][equals]={id}` | For dedup |
+| Create page | `POST /api/wiki-pages` | |
+| Update existing page | `PATCH /api/wiki-pages/{id}` | For re-runs |
 | Upload media | `POST /api/media` | multipart/form-data |
-| Check for duplicate | `GET /api/events?where[slug][equals]={slug}` | Skip if already imported |
-| Create category | `POST /api/categories` | Only if using relational tags |
+| Create redirect | `POST /api/redirects` | Optional |
 
-### 5.1 Auth
-
-The import script will read credentials from `.env`:
+### 5.2 Environment variables needed by import script
 
 ```env
 PAYLOAD_URL=https://your-payload-instance.com
 PAYLOAD_EMAIL=admin@example.com
 PAYLOAD_PASSWORD=yourpassword
-# OR
+# --- OR ---
 PAYLOAD_API_KEY=your-api-key
+
+# Source wiki credentials
+WIKI_USERNAME=your_wiki_bot_username
+WIKI_PASSWORD=your_wiki_bot_password
 ```
 
 ---
 
-## 6. Data Complexity Classification
+## 6. Image Migration Strategy
 
-Based on page structure, each wiki page falls into one of three migration complexity tiers:
+Images in the wiki are stored as direct URLs pointing to nithyanandapedia.org's file server. Three options:
 
-| Tier | Criteria | Expected % |
-|---|---|---|
-| **Simple** | Plain text, no gallery, no infobox | ~20% |
-| **Moderate** | Has `EventDetails` template or infobox, no gallery | ~30% |
-| **Complex** | Has `<gallery>` block with images | ~50% |
+| Option | Description | Effort | Recommended for |
+|---|---|---|---|
+| **A — URL only** | Store the original wiki image URLs as strings. No re-hosting. | Low | Quick first import; images may go dead if wiki is decommissioned |
+| **B — Download + re-upload** | Script downloads each image, uploads to Payload media, replaces URL | Medium | Permanent migration — do after content import |
+| **C — Direct S3 copy** | Copy files between S3 buckets if both use S3 | Low (if infra allows) | Best if Payload uses S3 storage |
 
-> The exact breakdown will be confirmed after running `wiki-analyze.js` on the live wiki.
-
----
-
-## 7. Wikitext Parsing Notes
-
-The import script will use these regex/parsing rules to extract structured data from raw wikitext:
-
-```
-EventDetails template:
-  /{{EventDetails\|([\s\S]*?)}}/
-  Fields split by |, values by =
-
-Gallery images:
-  /<gallery[^>]*>([\s\S]*?)<\/gallery>/gi
-  Each line is a file path
-
-Categories:
-  /\[\[Category:([^\]]+)\]\]/g
-
-H1 title:
-  /^=+'''([^']+)'''/m
-
-H2 sections:
-  /^==+'''?([^=']+)'''?==/gm
-
-Presidential Briefing:
-  Content between ==Presidential Daily Briefing== and next ==
-```
+**Recommended plan:** Do Option A first (import content with URLs), then run a separate media migration pass (Option B) once content is validated.
 
 ---
 
-## 8. Migration Script Interface (to be built)
+## 7. Migration Script Interface
+
+### Phase 1 — Analysis (run on your server)
 
 ```bash
-# Dry run — shows what would be imported, no writes
+# Quick test (20 pages)
+node wiki-analyze.js --limit 20
+
+# Full crawl
+node wiki-analyze.js
+
+# Include raw wikitext for ALL pages (larger output, needed for full import)
+node wiki-analyze.js --save-all-wikitext
+
+# Resume if interrupted
+node wiki-analyze.js --resume
+```
+
+### Phase 2 — Import (to be built after Payload schema confirmed)
+
+```bash
+# Dry run — shows what would be imported, no writes to Payload
 node wiki-import.js --dry-run
 
 # Full import
@@ -278,42 +358,61 @@ node wiki-import.js
 # Resume interrupted import
 node wiki-import.js --resume
 
-# Import a single page by title (for testing)
+# Single page test
 node wiki-import.js --page "Singapore On 2024-03-15"
+
+# Import only a specific content type
+node wiki-import.js --type event
+node wiki-import.js --type dharana
 ```
 
-Output:
-- `wiki-import/import-log.json` — success/failure per page
-- `wiki-import/failed.json` — pages that need manual review
-- Console progress with ETA
+---
+
+## 8. Open Questions for Payload Team
+
+Answer these before the import script (`wiki-import.js`) can be built:
+
+| # | Question | Why it matters |
+|---|---|---|
+| 1 | What is the exact collection slug? | Determines API endpoint paths |
+| 2 | One collection with `contentType` field, or separate collections per type? | Changes the whole data model |
+| 3 | Share the collection config file (TypeScript) | Ensures field names match exactly |
+| 4 | Is rich text Lexical or Slate? | Determines the JSON format for body/description POSTs |
+| 5 | Is media handled by Payload built-in, or an external S3 URL field? | Determines image migration approach |
+| 6 | Auth: API key (preferred) or email/password JWT? | Simpler to use API key |
+| 7 | Does the API support upsert by `wikiPageId`? | Required for safe re-runs |
+| 8 | Should Tamil-script pages be imported at all, or deferred? | Scope decision |
+| 9 | What should happen to redirects and stubs? | Skip, or create stub documents? |
+| 10 | Is there a rate limit on the Payload API? | Import script needs to throttle accordingly |
 
 ---
 
-## 9. Open Questions for Payload Repo
-
-Before the import script can be finalized, the Payload team needs to answer:
-
-1. **What is the exact collection slug?** (e.g. `events`, `articles`, `pages`)
-2. **What field names does the collection use?** (share the collection config file)
-3. **Is media handled by Payload's built-in media collection or an external S3 bucket?**
-4. **Is there an existing API key, or should the script use email/password login?**
-5. **Should `activityType` and `eventType` be free-text strings, or relational to a `categories` collection?**
-6. **Is rich text using Payload's Lexical editor or Slate?** (affects how description/body is formatted in the POST payload)
-7. **Is deduplication needed?** (i.e., can we run the import multiple times safely, or is it one-shot?)
-
----
-
-## 10. File Reference
+## 9. File Reference
 
 | File | Purpose |
 |---|---|
-| `wiki-analyze.js` | Phase 1: crawls the wiki and produces analysis reports |
-| `wiki-analysis/insights.json` | Aggregate stats from the crawl |
-| `wiki-analysis/summary.csv` | Per-page summary — share with stakeholders |
-| `wiki-analysis/report.json` | Full data used as input to the import script |
-| `server.js` (lines 328–381) | Original wiki page creation logic — source of truth for data shape |
+| `wiki-analyze.js` | Phase 1: crawls wiki, produces analysis output |
+| `wiki-analysis/insights.json` | Aggregate stats (page types, templates, languages) |
+| `wiki-analysis/summary.csv` | Per-page table — open in Google Sheets |
+| `wiki-analysis/report.json` | Full structured data — input to import script |
+| `server.js:328–381` | Original wiki page creation code — source of truth for event page shape |
 | `WIKI_MIGRATION_SPEC.md` | This document |
 
 ---
 
-*Generated from codebase analysis of the `photoUpload` repository. Run `wiki-analyze.js` on a server with API access to nithyanandapedia.org to populate the quantitative sections.*
+## 10. Known Issues / Edge Cases
+
+| Issue | Impact | Mitigation |
+|---|---|---|
+| Wiki is IP-allowlisted | Script must run from a trusted server | Documented in §1 |
+| 30% transient 502/timeout rate | Pages may be skipped in a single run | Retry logic + `--resume` flag |
+| Tamil/Unicode titles | URL encoding required | Handled by MediaWiki API automatically |
+| Titles with leading `"` quotes | First 20 pages all start with `"` — a wiki naming convention | Strip quotes in slug generation |
+| Wikitext stripped for non-event pages by default | Full text not in `report.json` | Use `--save-all-wikitext` flag |
+| `#evu:` video template | Non-standard, needs URL extraction | Handled in content type detection |
+| Inline CSS in template (`#css:`) | Not real content — parser function | Detected and excluded from template frequency |
+| Pages with 0 bytes | Likely deleted or access-restricted | Classified as `stub`, skipped in import |
+
+---
+
+*Last updated based on 20-page test crawl of nithyanandapedia.org (namespace 0, alphabetical start). Run the full `wiki-analyze.js` crawl to validate all counts and discover additional templates/categories.*
